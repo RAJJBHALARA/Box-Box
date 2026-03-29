@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 fastf1
-anthropic
+google-generativeai
 python-dotenv
 pandas
 numpy
