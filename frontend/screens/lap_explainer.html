@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PitWall Analysis | F1 Telemetry Lap Explainer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-container": "#01d2be",
+                        "on-secondary-container": "#00554c",
+                        "surface": "#131313",
+                        "background": "#131313",
+                        "surface-variant": "#353534",
+                        "error-container": "#93000a",
+                        "outline": "#af8781",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-secondary-fixed-variant": "#005048",
+                        "surface-dim": "#131313",
+                        "on-tertiary": "#2f3131",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#003731",
+                        "inverse-on-surface": "#313030",
+                        "on-background": "#e5e2e1",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-fixed": "#ffdad4",
+                        "tertiary-fixed-dim": "#c6c6c7",
+                        "secondary": "#47efda",
+                        "surface-container-highest": "#353534",
+                        "surface-container-high": "#2a2a2a",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-container": "#6f7070",
+                        "outline-variant": "#5e3f3a",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-container": "#201f1f",
+                        "primary": "#ffb4a8",
+                        "on-tertiary-container": "#f5f5f5",
+                        "on-surface-variant": "#e9bcb5",
+                        "secondary-fixed-dim": "#29dec9",
+                        "on-primary-fixed": "#410100",
+                        "tertiary": "#c6c6c7",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#56fae5",
+                        "primary-container": "#e10600",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "on-primary-container": "#fff2f0",
+                        "surface-bright": "#3a3939",
+                        "on-error": "#690005",
+                        "on-surface": "#e5e2e1",
+                        "on-primary-fixed-variant": "#930300",
+                        "on-primary": "#680200",
+                        "tertiary-fixed": "#e2e2e2",
+                        "surface-tint": "#ffb4a8",
+                        "inverse-primary": "#c00500",
+                        "on-tertiary-fixed": "#1a1c1c"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+        .f1-glass {
+            background: rgba(28, 27, 27, 0.6);
+            backdrop-filter: blur(24px);
+        }
+        .scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(225, 6, 0, 0.05) 50%);
+            background-size: 100% 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased selection:bg-primary-container selection:text-white">
+<!-- TopAppBar -->
+<header class="bg-[#0e0e0e] text-[#ffb4a8] font-['Space_Grotesk'] font-bold tracking-[-0.02em] uppercase docked full-width top-0 bg-[#1c1b1b] flat no-shadows tonal-layering flex justify-between items-center w-full px-6 py-4 sticky z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#ffb4a8] hover:bg-[#2a2a2a] transition-colors p-2 rounded cursor-pointer">menu</span>
+<span class="text-xl font-black text-[#e10600] tracking-tighter">PITWALL ANALYSIS</span>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex items-center gap-8 text-sm tracking-widest">
+<a class="text-[#ffb4a8] border-b-2 border-[#e10600] pb-1" href="#">SESSIONS</a>
+<a class="text-[#999999] hover:text-[#ffb4a8] transition-colors pb-1" href="#">TELEMETRY</a>
+<a class="text-[#999999] hover:text-[#ffb4a8] transition-colors pb-1" href="#">STRATEGY</a>
+</nav>
+<div class="h-10 w-10 rounded-full border-2 border-[#e10600] overflow-hidden bg-[#2a2a2a]">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a professional racing driver in a black fireproof suit with sponsor logos" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcdQM-gxkbiiV-w1J0und-oSKc-gcHLrvW36yv4w03cOtBo3Z1QHU70cFlxiMLzBFCXzWe9vYBWkFhCFtP84C2ndgntQtkBepxdbvjWLte56VIeYqTZAws2cuMz1psmRMH-Nz_oi4m2zqpYeeraG1yWWJnrcSz-lsjxMuvoefl2K2cPZalVVRt7PsUqSz6_UhZMyBAUuvcFse0tDasUCci8IjOu0ZqioaS_B51n-Bh__3sMEO3wYOKlRG-Ls-nNTaX5a_AY2_5o93Y"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-8 pb-32">
+<!-- Selection Controls Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="group">
+<label class="block font-headline text-[10px] font-bold uppercase tracking-[0.2em] text-[#999999] mb-2 px-1">Race Event</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-xl py-4 px-5 text-on-surface font-headline font-bold appearance-none cursor-pointer focus:ring-1 focus:ring-primary-container transition-all">
+<option>MONACO GRAND PRIX</option>
+<option>SILVERSTONE GP</option>
+<option>SPA-FRANCORCHAMPS</option>
+<option>SUZUKA CIRCUIT</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#e10600]">expand_more</span>
+</div>
+</div>
+<div class="group">
+<label class="block font-headline text-[10px] font-bold uppercase tracking-[0.2em] text-[#999999] mb-2 px-1">Driver profile</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-xl py-4 px-5 text-on-surface font-headline font-bold appearance-none cursor-pointer focus:ring-1 focus:ring-primary-container transition-all">
+<option>L. HAMILTON (44)</option>
+<option>M. VERSTAPPEN (1)</option>
+<option>C. LECLERC (16)</option>
+<option>L. NORRIS (4)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#e10600]">person</span>
+</div>
+</div>
+<div class="group">
+<label class="block font-headline text-[10px] font-bold uppercase tracking-[0.2em] text-[#999999] mb-2 px-1">Session Data</label>
+<div class="flex gap-2">
+<input class="w-full bg-surface-container-high border-none rounded-xl py-4 px-5 text-on-surface font-headline font-bold focus:ring-1 focus:ring-primary-container transition-all" placeholder="LAP" type="number" value="44"/>
+<button class="bg-primary-container text-on-primary-container px-6 rounded-xl font-headline font-black hover:opacity-90 active:scale-95 transition-all">GO</button>
+</div>
+</div>
+</section>
+<!-- Main Analysis Dashboard -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Analysis Card -->
+<section class="lg:col-span-8 bg-surface-container-low rounded-xl p-8 border-l-4 border-primary-container relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/5 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+<div class="flex justify-between items-start mb-10">
+<div>
+<h2 class="font-headline text-4xl font-black text-on-surface leading-none mb-2">LAP 44 ANALYSIS</h2>
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-secondary-container/10 text-secondary text-[10px] font-bold rounded-full border border-secondary/20">VALIDATED BY AI</span>
+<span class="text-[#999999] text-xs font-label">TIMESTAMP: 14:42:01.04</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline text-sm font-bold text-[#999999] tracking-tighter">LAP TIME</p>
+<p class="font-headline text-5xl font-black text-primary italic">1:12.844</p>
+</div>
+</div>
+<div class="space-y-6 relative z-10">
+<p class="font-body text-lg leading-relaxed text-on-surface-variant/90 tracking-wide first-letter:text-5xl first-letter:font-black first-letter:text-primary first-letter:float-left first-letter:mr-3 first-letter:mt-1">
+                        Lewis Hamilton's performance through the swimming pool chicane demonstrates exceptional mechanical grip and late-braking stability. The telemetry reveals a peak deceleration of 4.8G entering Turn 10, where he successfully delayed his braking point by 4 meters compared to his previous best. Despite the aggressive entry, his mid-corner rotation remained fluid, allowing for a minimum apex speed of 158 km/h. Traction out of Rascasse was optimal, utilizing a short-shift strategy to manage rear tyre thermal degradation. This precise throttle mapping mitigated wheel spin on the exit, resulting in a 0.142s gain over the delta in the final sector alone.
+                    </p>
+<div class="grid grid-cols-3 gap-4 pt-6 border-t border-[#ffffff]/5">
+<div class="bg-surface-container-highest p-4 rounded-lg">
+<p class="text-[10px] font-bold text-[#999999] uppercase mb-1">Max Velocity</p>
+<p class="text-2xl font-black font-headline">294 <span class="text-xs text-[#999999]">KM/H</span></p>
+</div>
+<div class="bg-surface-container-highest p-4 rounded-lg">
+<p class="text-[10px] font-bold text-[#999999] uppercase mb-1">Brake Force</p>
+<p class="text-2xl font-black font-headline">142 <span class="text-xs text-[#999999]">BAR</span></p>
+</div>
+<div class="bg-surface-container-highest p-4 rounded-lg">
+<p class="text-[10px] font-bold text-[#999999] uppercase mb-1">ERS Charge</p>
+<p class="text-2xl font-black font-headline text-secondary">84%</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Sidebar Telemetry Context -->
+<aside class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-low rounded-xl p-6 relative overflow-hidden">
+<h3 class="font-headline text-xs font-bold tracking-[0.2em] mb-4 text-[#999999]">TRACK MAP OVERVIEW</h3>
+<div class="aspect-square bg-[#0e0e0e] rounded-lg border border-white/5 flex items-center justify-center overflow-hidden">
+<img class="w-4/5 opacity-80" data-alt="Stylized glowing line art of the Monaco Grand Prix street circuit layout on a dark background with blue and red sector highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFkSqxdSiiKQVuwLM9yY-857O7C7cLxyw8N-MagWj0grwAYvBv0laZTwjrPA7PpBp27jP260WNyD1YA5-8rREalVXDq1DWRKaGRPpp-ls73zV8QfroKGF0SHYYQkHB6H_sQT_IfP-brwK89xuqdiewfpYBIr_jj03n_pi3kk6hyiFmTPFX6cQo4C8CC7hGHxNAPh5HtCBT1Jan3X6SKOFyFA0fw6zNeIa9WMBuLCoWGybwO9dR4s_q4Ne85jEhXMdHKYYe9lymYkeT"/>
+</div>
+</div>
+<div class="bg-primary-container p-6 rounded-xl flex items-center justify-between text-on-primary-container">
+<div>
+<p class="font-headline text-[10px] font-bold uppercase tracking-widest opacity-80">Lap Delta vs Leader</p>
+<p class="font-headline text-3xl font-black italic">-0.114s</p>
+</div>
+<span class="material-symbols-outlined text-4xl" data-weight="fill">trending_down</span>
+</div>
+</aside>
+</div>
+<!-- Sector Performance Blocks -->
+<section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Sector 1 (Blue) -->
+<div class="bg-surface-container-low rounded-xl p-1 overflow-hidden group">
+<div class="bg-blue-600/10 p-6 rounded-lg border-t-4 border-blue-500 transition-all hover:bg-blue-600/20">
+<div class="flex justify-between items-start mb-4">
+<span class="font-headline text-[10px] font-black text-blue-400 bg-blue-500/10 px-2 py-1 rounded">SECTOR 1</span>
+<span class="material-symbols-outlined text-blue-400 text-sm">speed</span>
+</div>
+<p class="font-headline text-4xl font-black text-on-surface mb-1">18.422</p>
+<div class="flex items-center gap-2">
+<div class="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 w-[78%]"></div>
+</div>
+<span class="text-[10px] font-bold text-blue-400">-0.041</span>
+</div>
+</div>
+</div>
+<!-- Sector 2 (Yellow) -->
+<div class="bg-surface-container-low rounded-xl p-1 overflow-hidden group">
+<div class="bg-yellow-500/10 p-6 rounded-lg border-t-4 border-yellow-500 transition-all hover:bg-yellow-500/20">
+<div class="flex justify-between items-start mb-4">
+<span class="font-headline text-[10px] font-black text-yellow-400 bg-yellow-500/10 px-2 py-1 rounded">SECTOR 2</span>
+<span class="material-symbols-outlined text-yellow-400 text-sm">ads_click</span>
+</div>
+<p class="font-headline text-4xl font-black text-on-surface mb-1">32.109</p>
+<div class="flex items-center gap-2">
+<div class="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-yellow-500 w-[92%]"></div>
+</div>
+<span class="text-[10px] font-bold text-yellow-400">+0.012</span>
+</div>
+</div>
+</div>
+<!-- Sector 3 (Purple) -->
+<div class="bg-surface-container-low rounded-xl p-1 overflow-hidden group">
+<div class="bg-purple-600/10 p-6 rounded-lg border-t-4 border-purple-500 transition-all hover:bg-purple-600/20">
+<div class="flex justify-between items-start mb-4">
+<span class="font-headline text-[10px] font-black text-purple-400 bg-purple-500/10 px-2 py-1 rounded">SECTOR 3</span>
+<span class="material-symbols-outlined text-purple-400 text-sm">auto_awesome</span>
+</div>
+<p class="font-headline text-4xl font-black text-on-surface mb-1">22.313</p>
+<div class="flex items-center gap-2">
+<div class="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-purple-500 w-[85%]"></div>
+</div>
+<span class="text-[10px] font-bold text-purple-400">-0.082</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-[#0e0e0e]/90 backdrop-blur-xl border-t border-[#ffffff]/10 shadow-[0px_-10px_30px_rgba(0,0,0,0.5)]">
+<button class="flex flex-col items-center justify-center text-[#999999] hover:text-[#01d2be] transition-all">
+<span class="material-symbols-outlined mb-1">timer</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">SESSIONS</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#999999] hover:text-[#01d2be] transition-all">
+<span class="material-symbols-outlined mb-1">query_stats</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">TELEMETRY</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#999999] hover:text-[#01d2be] transition-all">
+<span class="material-symbols-outlined mb-1">ads_click</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">SECTORS</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#ffb4a8] bg-[#e10600]/10 rounded-xl px-3 py-1 scale-100 active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1">psychology</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">AI INSIGHTS</span>
+</button>
+</nav>
+<!-- Floating Action Indicator (Hidden on many pages but useful for core actions) -->
+<div class="fixed right-6 bottom-24 hidden md:block">
+<button class="h-14 w-14 rounded-full bg-primary-container flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all text-on-primary-container">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</body></html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#131313",
+              "on-primary-fixed-variant": "#930300",
+              "error-container": "#93000a",
+              "on-background": "#e5e2e1",
+              "on-tertiary-fixed-variant": "#454747",
+              "secondary-fixed-dim": "#29dec9",
+              "on-error-container": "#ffdad6",
+              "surface": "#131313",
+              "tertiary-fixed": "#e2e2e2",
+              "on-secondary-container": "#00554c",
+              "on-tertiary-container": "#f5f5f5",
+              "tertiary-container": "#6f7070",
+              "outline": "#af8781",
+              "primary-container": "#e10600",
+              "on-secondary-fixed": "#00201c",
+              "error": "#ffb4ab",
+              "tertiary": "#c6c6c7",
+              "surface-container-lowest": "#0e0e0e",
+              "primary-fixed": "#ffdad4",
+              "surface-variant": "#353534",
+              "on-surface-variant": "#e9bcb5",
+              "on-primary-container": "#fff2f0",
+              "on-surface": "#e5e2e1",
+              "on-secondary": "#003731",
+              "on-tertiary": "#2f3131",
+              "on-primary-fixed": "#410100",
+              "surface-container-highest": "#353534",
+              "inverse-primary": "#c00500",
+              "on-error": "#690005",
+              "on-tertiary-fixed": "#1a1c1c",
+              "outline-variant": "#5e3f3a",
+              "inverse-on-surface": "#313030",
+              "secondary-container": "#01d2be",
+              "secondary": "#47efda",
+              "surface-container-low": "#1c1b1b",
+              "on-primary": "#680200",
+              "surface-bright": "#3a3939",
+              "primary": "#ffb4a8",
+              "primary-fixed-dim": "#ffb4a8",
+              "surface-container": "#201f1f",
+              "surface-tint": "#ffb4a8",
+              "secondary-fixed": "#56fae5",
+              "tertiary-fixed-dim": "#c6c6c7",
+              "inverse-surface": "#e5e2e1",
+              "surface-dim": "#131313",
+              "on-secondary-fixed-variant": "#005048",
+              "surface-container-high": "#2a2a2a"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(28, 27, 27, 0.6);
+            backdrop-filter: blur(24px);
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="overflow-x-hidden">
+<!-- TopAppBar Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 bg-[#131313]/60 backdrop-blur-[24px] border-b border-white/5 shadow-[0px_20px_40px_rgba(0,0,0,0.4)]">
+<div class="flex items-center justify-between px-8 h-20 w-full mx-auto max-w-screen-2xl">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#e10600] text-3xl" data-icon="sports_motorsports">sports_motorsports</span>
+<span class="text-2xl font-bold tracking-tighter text-white font-['Space_Grotesk'] uppercase">PitWall AI</span>
+</div>
+<div class="hidden md:flex items-center gap-8 font-['Space_Grotesk'] tracking-[-0.02em] uppercase">
+<a class="text-[#e10600] border-b-2 border-[#e10600] pb-1 hover:text-white transition-all duration-300" href="#">Home</a>
+<a class="text-[#999999] font-medium hover:text-white transition-all duration-300" href="#">Race Analysis</a>
+<a class="text-[#999999] font-medium hover:text-white transition-all duration-300" href="#">Rivalry Tracker</a>
+<a class="text-[#999999] font-medium hover:text-white transition-all duration-300" href="#">Fantasy Picks</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-[#e10600] text-white px-6 py-2 rounded-xl font-['Space_Grotesk'] font-bold uppercase text-sm tracking-wider active:scale-95 transition-transform">
+                    Live Data
+                </button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-24 md:pb-0">
+<!-- Hero Section: F1 Car Background -->
+<section class="relative h-[618px] w-full flex items-end overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="Modern Formula 1 car speeding on a dark asphalt track at night with bright neon lights reflecting off the carbon fiber body" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6STrebrM3FoA3EdT0XEJlcSUQdtye0q_wWdY8qORTdPZa1V6ZOjAyDrGROz_JCHYgLc6O8YvGGIOQrYv93NZFl9msM9lbmaNO3hVtFRxbFT_blq-NxdnnISX7jir61epIiSTWX0PkcXzpGAjVN-Ikfec3GZhGcKwDfxCwPsAm62eOxIuVOmH1G7ZJzq1xqhkq1L62szgkdoniWFHgASNR6O-Nh4o-hxuJXMbCrsvO5IbKYkgCxR4ciig0KUGr81PIUI4Qp1qXMIyz"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/40 to-transparent"></div>
+</div>
+<div class="relative z-10 px-8 pb-16 max-w-screen-2xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+<div>
+<h1 class="text-6xl md:text-8xl font-['Space_Grotesk'] font-bold text-white tracking-[-0.04em] leading-tight">
+                        THE KINETIC<br/><span class="text-[#e10600]">OBSERVATORY</span>
+</h1>
+<p class="mt-6 text-on-surface-variant max-w-md text-lg leading-relaxed">
+                        Harnessing real-time telemetry from the paddock. Precision analytics engineered for the high-performance spectator.
+                    </p>
+</div>
+<div class="hidden md:flex flex-col items-end">
+<div class="bg-surface-container-high/60 backdrop-blur-md p-6 rounded-xl border border-white/5 w-80">
+<div class="flex justify-between items-center mb-4">
+<span class="font-['Space_Grotesk'] text-xs font-bold text-[#999999] tracking-widest uppercase">Track Surface</span>
+<span class="text-secondary font-bold">OPTIMAL</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<span class="text-3xl font-['Space_Grotesk'] font-bold text-white">42.8°C</span>
+<span class="text-xs text-[#999999] pb-1">ASPHALT TEMP</span>
+</div>
+<div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-3/4"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Live Telemetry Dashboard: Bento Grid -->
+<section class="max-w-screen-2xl mx-auto px-8 py-12">
+<div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
+<!-- Driver Profile Large Card -->
+<div class="md:col-span-2 lg:col-span-2 bg-surface-container-low rounded-none p-8 flex flex-col justify-between min-h-[400px]">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-['Space_Grotesk'] text-xs font-bold text-[#e10600] tracking-widest uppercase mb-2 block">Current Leader</span>
+<h2 class="text-4xl font-['Space_Grotesk'] font-bold text-white uppercase tracking-tight">M. Verstappen</h2>
+</div>
+<div class="text-5xl font-['Space_Grotesk'] font-extrabold text-white/10 italic">01</div>
+</div>
+<div class="mt-8 flex-1 flex items-center justify-center">
+<img class="h-64 object-contain filter grayscale contrast-125 hover:grayscale-0 transition-all duration-700" data-alt="Professional racing driver portrait wearing a red and blue technical suit and helmet, studio lighting, high contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqvEzJRwHhi27iJdEpno1WDINuuB6QD5lJhhIHKHJuiE1TwOV51tllNtgcm7zs623Cf6baf7ujE7NRwYUXgnh_Uw21JrgjmCKcNVWnFzWFWdZ8i6qKjLnam5AxQ3IbJqHOEgX0pLhjF-XpTvyGkSsBj2NpuzZ02C1pPbJA4n_8Kc-0vZDgoMCXWJx02LcQ4GaYPNzpAol4y6pasNurjlw8Z6rMwhYT1diIzADnhSk_59Awnaa3sZqniqtEteVGVIMW6dON9dN01ImX"/>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-8 border-t border-white/5 pt-6">
+<div>
+<span class="text-[10px] text-[#999999] uppercase tracking-widest block mb-1">Interval</span>
+<span class="text-xl font-['Space_Grotesk'] font-bold text-white">+12.454s</span>
+</div>
+<div>
+<span class="text-[10px] text-[#999999] uppercase tracking-widest block mb-1">Tires</span>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-error"></div>
+<span class="text-xl font-['Space_Grotesk'] font-bold text-white">SOFT (8L)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Telemetry Graph Mid Card -->
+<div class="md:col-span-2 lg:col-span-3 bg-surface-container-low rounded-none p-8 flex flex-col">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-['Space_Grotesk'] text-sm font-bold text-white uppercase tracking-widest">Live Sector Delta</h3>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-secondary-container/10 text-secondary text-[10px] font-bold rounded-full">SECTOR 1: -0.042</span>
+<span class="px-3 py-1 bg-secondary-container/10 text-secondary text-[10px] font-bold rounded-full">SECTOR 2: -0.118</span>
+</div>
+</div>
+<div class="flex-1 flex items-end gap-2">
+<div class="flex-1 h-3/4 bg-gradient-to-t from-secondary/20 to-secondary/5 border-t-2 border-secondary relative overflow-hidden">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(71,239,218,0.1),transparent)]"></div>
+</div>
+<div class="flex-1 h-1/2 bg-gradient-to-t from-secondary/20 to-secondary/5 border-t-2 border-secondary relative"></div>
+<div class="flex-1 h-[90%] bg-gradient-to-t from-secondary/20 to-secondary/5 border-t-2 border-secondary relative"></div>
+<div class="flex-1 h-[60%] bg-gradient-to-t from-secondary/20 to-secondary/5 border-t-2 border-secondary relative"></div>
+<div class="flex-1 h-[85%] bg-gradient-to-t from-secondary/20 to-secondary/5 border-t-2 border-secondary relative"></div>
+<div class="flex-1 h-2/3 bg-gradient-to-t from-secondary/20 to-secondary/5 border-t-2 border-secondary relative"></div>
+</div>
+<div class="mt-6 flex justify-between text-[10px] font-['Space_Grotesk'] text-[#999999] uppercase tracking-widest">
+<span>Lap Start</span>
+<span>Current Lap: 1:32.441</span>
+<span>Finish Line</span>
+</div>
+</div>
+<!-- Small Data Chip Vertical Stack -->
+<div class="md:col-span-2 lg:col-span-1 space-y-4">
+<div class="bg-surface-container-high p-6 flex flex-col justify-between h-[192px]">
+<span class="text-[10px] font-bold text-[#999999] uppercase tracking-widest">Pit Window</span>
+<div class="text-4xl font-['Space_Grotesk'] font-bold text-white">LAP 24</div>
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="timer">timer</span>
+<span class="text-[10px] font-bold uppercase">Optimal Entry</span>
+</div>
+</div>
+<div class="bg-surface-container-high p-6 flex flex-col justify-between h-[192px]">
+<span class="text-[10px] font-bold text-[#999999] uppercase tracking-widest">Weather</span>
+<div class="text-4xl font-['Space_Grotesk'] font-bold text-white">0% RAIN</div>
+<div class="flex items-center gap-2 text-[#999999]">
+<span class="material-symbols-outlined text-sm" data-icon="cloud">cloud</span>
+<span class="text-[10px] font-bold uppercase">Clear Skies</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Race Analysis Section -->
+<section class="max-w-screen-2xl mx-auto px-8 py-16">
+<div class="flex justify-between items-end mb-12">
+<div>
+<span class="text-[#e10600] font-bold tracking-[0.2em] uppercase text-xs">Strategic Insights</span>
+<h2 class="text-4xl font-['Space_Grotesk'] font-bold text-white mt-2">RACE ANALYSIS</h2>
+</div>
+<button class="text-on-surface-variant flex items-center gap-2 font-['Space_Grotesk'] font-bold text-sm tracking-widest uppercase hover:text-white transition-colors">
+                    View Full Report
+                    <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video overflow-hidden mb-6 bg-surface-container-low">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-105 group-hover:opacity-80 transition-all duration-700" data-alt="Technical drawing overlay of a Formula 1 steering wheel with glowing digital data indicators and racing dashboard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk4AcNqL5Ze4zu0wU2tw3P22xDZrWmnrJoWTI-NOALKPl9sHqiPfquN_8O-Rhj4gJlEF6NmC276mA4t-A3-6D1KZdt-AQ5FLulFWt1PUQwfpVlkB7Z68qcUdImgIwrDoGvhvZGG6PSD-Dk8YVDvXEMxZ1NIabJe5B-3Y-msZX4ceOcCIkRf4_VqG8ExKcR1n25ko9j-EbEn0TfXlQuSXaPc-Z3qeKPpnEXkprsg53G3qbrJy9C0oQrjqC85HE6T2AbDnVrG6a3BNym"/>
+<div class="absolute top-4 left-4 bg-[#e10600] text-white text-[10px] font-black px-3 py-1 tracking-widest uppercase">Engine Dynamics</div>
+</div>
+<h3 class="text-xl font-['Space_Grotesk'] font-bold text-white mb-3 group-hover:text-[#e10600] transition-colors">Power Unit Degradation: Silverstone GP</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-2">Exploring how ERS harvesting patterns affected top-end speed on the Wellington Straight during the final stint.</p>
+</div>
+<!-- Card 2 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video overflow-hidden mb-6 bg-surface-container-low">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-105 group-hover:opacity-80 transition-all duration-700" data-alt="Abstract view of blurred Formula 1 tires with bright red tire blanket lights in a dark garage setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL2_7Aq70TUhe5yWUSHmgGp48yYDmiaighSWtSuslgDqpwJmfIivto7yETqUkgBitRoXMUuMlIt0OU9HdXMnaFiE4eCwh49k71ad29UvzdyM6qKdkRA5fcX2SQwMbe06oOqjiuOUds6B39tBJW5dqyFNto7SW_wm-47EdKAayQNWW5npyqii9dKTz-RR5CQ1ObgfsfNX_u2bUV3BF1iryrXr9l0xK3ZQnPU7BHeoXscYM7z_ybOdmMu-PTPrGP1N9vjslrnRBq3cOE"/>
+<div class="absolute top-4 left-4 bg-secondary text-on-secondary text-[10px] font-black px-3 py-1 tracking-widest uppercase">Tire Strategy</div>
+</div>
+<h3 class="text-xl font-['Space_Grotesk'] font-bold text-white mb-3 group-hover:text-secondary transition-colors">The Undercut Window: C4 Compound Analysis</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-2">Why shifting to the hard compound early proved fatal for Ferrari's chances at the Hungaroring.</p>
+</div>
+<!-- Card 3 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video overflow-hidden mb-6 bg-surface-container-low">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-105 group-hover:opacity-80 transition-all duration-700" data-alt="Aerodynamic fluid dynamics simulation visualization showing air flow over a race car wing in neon blue and red" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWJ8HXQUdOL23VpCMc4PECB7wuW6IlP7pfHLFVypxjwLAGTMh4n4Iu5VFhDzxA_a8pgW0iCZvPZtVlm1gbApc_OtDwiKny4SMlFxElNl3M3aUPkpQLbEfDCBFDrO1a_x7mKXnAQrgkwhjicTWOt9-jaV5OU6EFXiPLbiiSgxeRwkAPRE6oakhs-P6xHoZOVCdZ0yvnfIkYIyS9j4deuVRz8OJNm5Od7H066CUpK2RSCFLGNpXArjm4u1EDY4R0dRzLl42uDOXiLawG"/>
+<div class="absolute top-4 left-4 bg-white text-black text-[10px] font-black px-3 py-1 tracking-widest uppercase">Aero Balance</div>
+</div>
+<h3 class="text-xl font-['Space_Grotesk'] font-bold text-white mb-3 group-hover:text-white transition-colors">Ground Effect &amp; Porpoising Correlation</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-2">New data reveals the relationship between ride height and high-speed stability in the current aero regulations.</p>
+</div>
+</div>
+</section>
+<!-- Dynamic Rivalry Section -->
+<section class="max-w-screen-2xl mx-auto px-8 py-16 bg-surface-container-lowest">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="relative">
+<div class="absolute -inset-4 bg-primary/5 blur-3xl rounded-full"></div>
+<div class="relative flex justify-center items-center gap-4">
+<div class="w-1/2 flex flex-col items-center">
+<div class="w-full aspect-square bg-surface-container-high rounded-none relative overflow-hidden mb-4">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="Close-up of a racer's eyes visible through a dark visor with reflections of racing flags" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2SbYLb-z2axESLsFhhm-ujOISGPO25OuoI8JEkuvU9-VQY1uAacQeTLWXzZvRpxMv59l_VJ3iU7sRe9DJwrVNBYGciBbV7LtpTL-Hagg6pPG_LE-B3sgUxwmPjwWpoLPpCc0Bi0wiKeO7uPD2P4itZ6rOFD8bwTZF0v6DEZ-MxWDTGEy08TVoD0popP4U5RQL-JD4qLGzbrlmE_4375iDEqO0rJzn2vev3qBNL6HBcTIT7Y6b_1z-cZeklHg2hdgt3B4IDjkc3JZx"/>
+</div>
+<span class="font-['Space_Grotesk'] font-bold text-white uppercase text-xl">L. Hamilton</span>
+</div>
+<div class="text-4xl font-['Space_Grotesk'] font-black italic text-[#e10600]">VS</div>
+<div class="w-1/2 flex flex-col items-center">
+<div class="w-full aspect-square bg-surface-container-high rounded-none relative overflow-hidden mb-4">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="Racing steering wheel controls with bright buttons and carbon fiber texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDic6WPxxOE2vlDzoSKweo3r-u9zR4-4Ky0C7aUs1i2znemPP2vbNi-drMr73dJcj6Hg3l73DYM-gSySdKtMXTM25airf6xtq6_EVPawOsaWbRHvuHiApdEKUeU1l8Fx1WjuVr6WjcsCgZ40zNNjPlAYw1_QocBi_yg9d-IB3i0x29F6BtviKVX7dijOzToB4Jg1hZ9RVIKkK_BLWNuQj_ZpwiDf45olHLGgWxGzoTBlH_q5duI85n4WBWIwQh5cAbBBYAQ9F0SMC3l"/>
+</div>
+<span class="font-['Space_Grotesk'] font-bold text-white uppercase text-xl">G. Russell</span>
+</div>
+</div>
+</div>
+<div>
+<span class="font-['Space_Grotesk'] font-bold text-secondary tracking-widest uppercase text-xs mb-4 block">Head to Head Analysis</span>
+<h2 class="text-5xl font-['Space_Grotesk'] font-bold text-white leading-tight mb-8 uppercase tracking-tighter">TEAMMATE<br/>TENSIONS</h2>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-['Space_Grotesk'] font-bold text-[#999999] uppercase tracking-widest">
+<span>Qualifying (9-4)</span>
+<span>3.2% Pace Gap</span>
+</div>
+<div class="h-2 bg-surface-container-high flex">
+<div class="h-full bg-[#e10600] w-[65%]"></div>
+<div class="h-full bg-white/10 w-[35%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-['Space_Grotesk'] font-bold text-[#999999] uppercase tracking-widest">
+<span>Points (154-132)</span>
+<span>+22 Margin</span>
+</div>
+<div class="h-2 bg-surface-container-high flex">
+<div class="h-full bg-[#e10600] w-[55%]"></div>
+<div class="h-full bg-white/10 w-[45%]"></div>
+</div>
+</div>
+</div>
+<button class="mt-10 px-8 py-4 bg-white text-black font-['Space_Grotesk'] font-bold uppercase text-xs tracking-widest active:scale-95 transition-transform">
+                        Explore Rivalry Matrix
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Navigation Shell (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-[#0e0e0e] border-t border-[#2a2a2a] backdrop-blur-xl">
+<a class="flex flex-col items-center justify-center text-[#e10600] scale-110" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#999999] opacity-70 hover:opacity-100" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#999999] opacity-70 hover:opacity-100" href="#">
+<span class="material-symbols-outlined" data-icon="Compare_arrows">compare_arrows</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Rivalry</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#999999] opacity-70 hover:opacity-100" href="#">
+<span class="material-symbols-outlined" data-icon="stars">stars</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Fantasy</span>
+</a>
+</nav>
+</body></html>

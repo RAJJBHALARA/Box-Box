@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fantasy Picks | PitWall Method</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#131313",
+                        "primary-container": "#e10600",
+                        "on-surface": "#e5e2e1",
+                        "inverse-surface": "#e5e2e1",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "surface-variant": "#353534",
+                        "secondary": "#47efda",
+                        "inverse-primary": "#c00500",
+                        "secondary-fixed": "#56fae5",
+                        "primary": "#ffb4a8",
+                        "on-tertiary-container": "#f5f5f5",
+                        "on-primary-container": "#fff2f0",
+                        "surface-container-lowest": "#0e0e0e",
+                        "error": "#ffb4ab",
+                        "on-background": "#e5e2e1",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "background": "#131313",
+                        "tertiary": "#c6c6c7",
+                        "on-primary": "#680200",
+                        "primary-fixed": "#ffdad4",
+                        "on-tertiary": "#2f3131",
+                        "on-surface-variant": "#e9bcb5",
+                        "tertiary-fixed": "#e2e2e2",
+                        "on-error": "#690005",
+                        "outline-variant": "#5e3f3a",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "surface-container-highest": "#353534",
+                        "outline": "#af8781",
+                        "on-primary-fixed-variant": "#930300",
+                        "surface-container-low": "#1c1b1b",
+                        "secondary-fixed-dim": "#29dec9",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-container": "#201f1f",
+                        "secondary-container": "#01d2be",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed-variant": "#005048",
+                        "surface-container-high": "#2a2a2a",
+                        "tertiary-fixed-dim": "#c6c6c7",
+                        "error-container": "#93000a",
+                        "surface-bright": "#3a3939",
+                        "tertiary-container": "#6f7070",
+                        "surface-tint": "#ffb4a8",
+                        "on-secondary-container": "#00554c",
+                        "on-primary-fixed": "#410100",
+                        "on-secondary": "#003731",
+                        "inverse-on-surface": "#313030"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(53, 53, 52, 0.6);
+            backdrop-filter: blur(24px);
+        }
+        .f1-gradient-cta {
+            background: linear-gradient(135deg, #ffb4a8 0%, #e10600 100%);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #353534; border-radius: 10px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest text-on-surface font-body min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-[#131313] flex justify-between items-center px-6 py-4 w-full sticky top-0 z-[60] docked full-width">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#ffb4a8]">menu</span>
+<h1 class="text-xl font-bold font-['Space_Grotesk'] text-[#e10600] uppercase tracking-tighter">Fantasy Picks</h1>
+</div>
+<div class="flex items-center gap-6">
+<!-- Race Selection Dropdown -->
+<div class="hidden md:flex items-center bg-surface-container-high px-4 py-2 rounded-lg gap-3 cursor-pointer hover:bg-[#2a2a2a] transition-colors border border-outline-variant/10">
+<span class="material-symbols-outlined text-secondary text-sm">flag</span>
+<span class="font-headline font-bold text-sm uppercase tracking-tight">Monaco GP</span>
+<span class="material-symbols-outlined text-xs">expand_more</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] font-label font-bold uppercase text-gray-500 tracking-widest">Remaining Budget</span>
+<div class="text-[#ffb4a8] font-headline font-bold tracking-tight text-lg">$100.0M</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-8">
+<!-- Header Strategy Section -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
+<div class="max-w-2xl">
+<h2 class="font-headline text-5xl font-bold tracking-tighter mb-4 uppercase">Build Your <span class="text-primary-container">Championship</span></h2>
+<p class="text-on-surface-variant font-body text-lg leading-relaxed">Select 5 drivers and 1 constructor within the $100M cost cap. Values fluctuate based on real-time performance telemetry and market demand.</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-primary-container flex-shrink-0">
+<div class="flex items-center gap-4 mb-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-headline font-bold text-sm tracking-widest uppercase">Live Pulse</span>
+</div>
+<div class="font-headline text-2xl font-bold">2,412.5 PTS</div>
+<div class="text-secondary text-xs font-bold flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> +42.1 vs GLOBAL AVG
+                </div>
+</div>
+</div>
+<!-- Selection Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-16">
+<!-- Constructor Card (Featured Slot) -->
+<div class="md:col-span-2 lg:col-span-2 relative group overflow-hidden bg-surface-container-low rounded-xl p-8 flex flex-col justify-between min-h-[300px] transition-all hover:bg-surface-container-high border border-outline-variant/5">
+<div class="absolute top-0 right-0 w-64 h-64 -mr-12 -mt-12 bg-primary-container/5 rounded-full blur-3xl group-hover:bg-primary-container/10 transition-all"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="font-label text-xs font-bold text-primary tracking-[0.2em] uppercase">Constructor Selection</span>
+<h3 class="font-headline text-4xl font-bold tracking-tighter mt-1">McLaren</h3>
+</div>
+<div class="bg-primary-container p-3 rounded-full shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined text-white text-3xl">settings_input_component</span>
+</div>
+</div>
+<div class="flex gap-12">
+<div>
+<div class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest mb-1">Season Points</div>
+<div class="font-headline text-2xl font-bold">580</div>
+</div>
+<div>
+<div class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest mb-1">Market Value</div>
+<div class="font-headline text-2xl font-bold text-primary">$24.0M</div>
+</div>
+</div>
+</div>
+<div class="relative z-10 mt-8 flex justify-between items-center">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover grayscale" data-alt="United Kingdom flag close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALzfzoNdtuAODlYqbdOqbLE9nzNAsI-EHyGIq0hTXU7H8jh_j0lEV9w4XsFz1uLx5nO5KNMVNXw9weUAnLr5djhwVRNqpzL9u2pJU-K8i7LJ67LNROZH_fJ2Fkj3YFbNeCMj8VqO-eNVXXt2yj5dh_XQs1V0oFIF1fQzS4fFQ8tG1JaOkC7pbMrEqROM_Wq5BtWSrXqI2IuntAfMiZ-HdkRWA45r4yXl6tVPBitgHmAs_qwQrfmd8AadO7JfwQCTJkNC6x1oOkye_a"/>
+</div>
+</div>
+<button class="f1-gradient-cta px-8 py-3 rounded-full font-headline font-bold text-sm tracking-tight text-on-primary-fixed uppercase transition-transform active:scale-95 shadow-lg shadow-primary-container/10">Modify Team</button>
+</div>
+</div>
+<!-- Driver Cards -->
+<!-- Driver 1 -->
+<div class="bg-surface-container-low rounded-xl p-6 transition-all hover:bg-surface-container-high flex flex-col justify-between border border-outline-variant/5">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center">
+<span class="font-headline font-extrabold text-primary text-xl">1</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-xl">star</span>
+</div>
+<h4 class="font-headline text-2xl font-bold tracking-tighter mb-1 uppercase">M. Verstappen</h4>
+<p class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">Red Bull Racing</p>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<div class="flex justify-between items-center">
+<div class="text-secondary font-headline font-bold text-lg">$28.5M</div>
+<div class="text-right">
+<div class="text-[10px] font-label font-bold text-gray-500 uppercase">PTS</div>
+<div class="font-headline font-bold">342</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Driver 2 -->
+<div class="bg-surface-container-low rounded-xl p-6 transition-all hover:bg-surface-container-high flex flex-col justify-between border border-outline-variant/5">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center">
+<span class="font-headline font-extrabold text-primary text-xl">4</span>
+</div>
+</div>
+<h4 class="font-headline text-2xl font-bold tracking-tighter mb-1 uppercase">L. Norris</h4>
+<p class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">McLaren</p>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<div class="flex justify-between items-center">
+<div class="text-secondary font-headline font-bold text-lg">$21.2M</div>
+<div class="text-right">
+<div class="text-[10px] font-label font-bold text-gray-500 uppercase">PTS</div>
+<div class="font-headline font-bold">225</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Driver 3 -->
+<div class="bg-surface-container-low rounded-xl p-6 transition-all hover:bg-surface-container-high flex flex-col justify-between border border-outline-variant/5">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center">
+<span class="font-headline font-extrabold text-primary text-xl">16</span>
+</div>
+</div>
+<h4 class="font-headline text-2xl font-bold tracking-tighter mb-1 uppercase">C. Leclerc</h4>
+<p class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">Ferrari</p>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<div class="flex justify-between items-center">
+<div class="text-secondary font-headline font-bold text-lg">$19.8M</div>
+<div class="text-right">
+<div class="text-[10px] font-label font-bold text-gray-500 uppercase">PTS</div>
+<div class="font-headline font-bold">192</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Driver 4 -->
+<div class="bg-surface-container-low rounded-xl p-6 transition-all hover:bg-surface-container-high flex flex-col justify-between border border-outline-variant/5">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center">
+<span class="font-headline font-extrabold text-primary text-xl">81</span>
+</div>
+</div>
+<h4 class="font-headline text-2xl font-bold tracking-tighter mb-1 uppercase">O. Piastri</h4>
+<p class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">McLaren</p>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<div class="flex justify-between items-center">
+<div class="text-secondary font-headline font-bold text-lg">$15.4M</div>
+<div class="text-right">
+<div class="text-[10px] font-label font-bold text-gray-500 uppercase">PTS</div>
+<div class="font-headline font-bold">167</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Driver 5 -->
+<div class="bg-surface-container-low rounded-xl p-6 transition-all hover:bg-surface-container-high flex flex-col justify-between border border-outline-variant/5">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center">
+<span class="font-headline font-extrabold text-primary text-xl">44</span>
+</div>
+</div>
+<h4 class="font-headline text-2xl font-bold tracking-tighter mb-1 uppercase">L. Hamilton</h4>
+<p class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">Mercedes</p>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<div class="flex justify-between items-center">
+<div class="text-secondary font-headline font-bold text-lg">$18.9M</div>
+<div class="text-right">
+<div class="text-[10px] font-label font-bold text-gray-500 uppercase">PTS</div>
+<div class="font-headline font-bold">150</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Add Slot Empty State -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border-2 border-dashed border-outline-variant/20 flex flex-col items-center justify-center group cursor-pointer hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-4xl text-outline-variant group-hover:text-primary transition-colors">add_circle</span>
+<p class="font-label font-bold text-xs uppercase mt-4 tracking-widest text-outline-variant">Bench Slot</p>
+</div>
+</div>
+<!-- AI Recommendations Panel -->
+<section class="mb-12">
+<div class="glass-panel p-8 rounded-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-secondary opacity-20 text-9xl -mr-12 -mt-12">psychology</span>
+</div>
+<div class="flex items-center gap-3 mb-6">
+<div class="w-2 h-8 bg-secondary rounded-full"></div>
+<h3 class="font-headline text-2xl font-bold uppercase tracking-tighter">AI Recommendations</h3>
+<div class="ml-auto flex items-center gap-2 bg-secondary/10 px-3 py-1 rounded-full">
+<span class="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest">Neural Engine Active</span>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+<div class="lg:col-span-2">
+<p class="text-on-surface-variant text-lg leading-relaxed font-body">
+                            Our AI suggests prioritizing high-value constructors for this circuit due to the low overtaking probability. Look for drivers with strong qualifying consistency. For the <span class="text-on-surface font-bold">Monaco Grand Prix</span>, grid position translates to 84% of podium probability. Avoid budget-stretching on midfield drivers with poor Saturday telemetry.
+                        </p>
+</div>
+<div class="bg-[#1c1b1b] p-6 rounded-xl border border-outline-variant/10 flex flex-col justify-center">
+<div class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest mb-4">Recommended Swap</div>
+<div class="flex items-center justify-between">
+<div class="text-sm font-bold opacity-60">S. Perez</div>
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
+<div class="text-sm font-bold text-secondary">N. Hulkenberg</div>
+</div>
+<div class="mt-4 text-[10px] font-label font-bold text-secondary-fixed uppercase tracking-tight">Projected Gain: +18 PTS</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-[#0e0e0e]/90 backdrop-blur-xl z-50 border-t-[0.5px] border-white/10" style="box-shadow: 0px -10px 30px rgba(0,0,0,0.5);">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-white transition-all active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase">Home</span>
+</a>
+<!-- Analysis -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-white transition-all active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1">analytics</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase">Analysis</span>
+</a>
+<!-- Rivalry -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-white transition-all active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase">Rivalry</span>
+</a>
+<!-- Fantasy (Active) -->
+<a class="flex flex-col items-center justify-center text-[#e10600] bg-[#e10600]/10 rounded-xl px-4 py-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">sports_score</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase">Fantasy</span>
+</a>
+</nav>
+</body></html>

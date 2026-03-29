@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'Space Grotesk';
+    src: url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-background: #131313;
+  --color-error-container: #93000a;
+  --color-surface: #131313;
+  --color-primary-container: #e10600;
+  --color-error: #ffb4ab;
+  --color-surface-container-highest: #353534;
+  --color-secondary-container: #01d2be;
+  --color-secondary: #47efda;
+  --color-surface-container-low: #1c1b1b;
+  --color-surface-bright: #3a3939;
+  --color-primary: #ffb4a8;
+  --color-surface-container: #201f1f;
+  --color-surface-container-high: #2a2a2a;
+  --color-on-surface-variant: #e9bcb5;
+  --color-surface-container-lowest: #0e0e0e;
+
+  /* Font Families */
+  --font-headline: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  background-color: var(--color-background, #0e0e0e);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+.glass-panel {
+  background: rgba(28, 27, 27, 0.6);
+  backdrop-filter: blur(24px);
+}

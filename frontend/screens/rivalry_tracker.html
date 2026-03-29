@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PitWall AI | Driver Rivalry Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed": "#e2e2e2",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c6c6c7",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#ffb4a8",
+                        "surface": "#131313",
+                        "on-tertiary": "#2f3131",
+                        "on-secondary": "#003731",
+                        "surface-container-high": "#2a2a2a",
+                        "background": "#131313",
+                        "secondary-fixed": "#56fae5",
+                        "on-primary-container": "#fff2f0",
+                        "on-surface": "#e5e2e1",
+                        "surface-tint": "#ffb4a8",
+                        "on-secondary-fixed": "#00201c",
+                        "error": "#ffb4ab",
+                        "surface-bright": "#3a3939",
+                        "outline-variant": "#5e3f3a",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary-container": "#f5f5f5",
+                        "on-primary-fixed-variant": "#930300",
+                        "inverse-surface": "#e5e2e1",
+                        "secondary-fixed-dim": "#29dec9",
+                        "on-error": "#690005",
+                        "secondary-container": "#01d2be",
+                        "primary-container": "#e10600",
+                        "on-secondary-container": "#00554c",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "surface-container-low": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#005048",
+                        "inverse-on-surface": "#313030",
+                        "surface-container": "#201f1f",
+                        "inverse-primary": "#c00500",
+                        "surface-variant": "#353534",
+                        "secondary": "#47efda",
+                        "on-surface-variant": "#e9bcb5",
+                        "on-background": "#e5e2e1",
+                        "on-primary": "#680200",
+                        "surface-dim": "#131313",
+                        "primary-fixed": "#ffdad4",
+                        "outline": "#af8781",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "on-primary-fixed": "#410100",
+                        "tertiary": "#c6c6c7",
+                        "tertiary-container": "#6f7070",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-tertiary-fixed": "#1a1c1c"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .stats-gradient-left {
+            background: linear-gradient(to left, #e10600, transparent);
+        }
+        .stats-gradient-right {
+            background: linear-gradient(to right, #e10600, transparent);
+        }
+        .glass-panel {
+            background: rgba(53, 53, 52, 0.6);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary-container selection:text-white">
+<!-- Top Navigation Anchor -->
+<header class="bg-[#0e0e0e]/90 backdrop-blur-md text-[#ffb4a8] dark:text-[#ffb4a8] font-['Space_Grotesk'] font-bold tracking-[-0.02em] uppercase docked full-width top-0 z-50 shadow-[0px_20px_40px_rgba(0,0,0,0.4)] flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#ffb4a8]">menu</span>
+<h1 class="text-2xl font-black text-[#e10600] italic">RIVALRY HUB</h1>
+</div>
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional driver avatar portrait with intense expression and technical racing gear background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOGI2857Of7Mc5e29gnkFczIezu9vliJS4zqreBYwCUzJh60m1OMyiyIhkjzvTkZfQSlH5eZx09LBloMwvj3S4bJXmVgfTnNXaAplvipwmAd5ANmBOeGyCRXr9CYlSBCU2aY_IcwKi6TqnoYOHaCF-i5DmMR7I69Ms6ytDlKXsDLrD6QH0bCvxW_P7ojNc5qB3rTTdXgIaaGIRXOGpDVZ_drqwd7x4wPK53qFyBy6HzUfpMBvqHMP16PuPl0hxtL8oIUd6fEYk4neN"/>
+</div>
+</header>
+<main class="pt-20 pb-28 px-4 max-w-md mx-auto min-h-screen">
+<!-- Year Selector & Action Bar -->
+<div class="flex justify-between items-center mb-8">
+<div class="bg-surface-container-high rounded-xl px-4 py-2 flex items-center gap-3 border border-outline-variant/10 active:scale-95 transition-transform duration-200">
+<span class="font-label font-bold text-xs tracking-widest text-on-surface-variant uppercase">2024 Season</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-high rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">share</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-primary-container rounded-full text-white shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</button>
+</div>
+</div>
+<!-- Rivalry Head-to-Head Hero -->
+<div class="relative grid grid-cols-2 gap-px bg-outline-variant/20 rounded-2xl overflow-hidden mb-10">
+<!-- Driver 1 -->
+<div class="bg-surface-container-low p-4 pb-0 flex flex-col items-center">
+<div class="w-12 h-12 mb-4">
+<img class="w-full h-full object-contain grayscale brightness-125" data-alt="Mercedes AMG Petronas Formula One Team logo with sharp chrome silver finish on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGPK19DZCBVy6-sLhcA6hUt8Tyu80tQo225oq5ZPQb8mze5xiNLebrGZiRbSOKSeLV3eGLu1W46DXes7P236q3ie-9mgYU4VMqpmgkJa2DbxNyc_ECK9BTGj1L21WtS6qnagjMKpDzLuIAUJW_RhsssL2WSfjAl-jd-maSDoNwysM7EeK1cLj8p6HY0pfWvRmyhn2hpzNi-1o812eGtpYEqzreVQiHFYnFzftVt2-nTSbqB-AWHy874pN-U_dQ-7gicWMfuxAKKD3Z"/>
+</div>
+<div class="relative w-full aspect-[4/5] mt-auto">
+<img class="absolute bottom-0 left-0 w-full h-full object-cover object-top" data-alt="Close up portrait of Lewis Hamilton in racing helmet with focused gaze and red accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3IVgm3OhgMcdYUPdO2JVhbmtWS3QaxqspXGQ-y1h0_32aNjXlTmXaevpnHuHYUmW7AKVqadyXPI_EnEykIdoNAWfjk9QdGtHpCNir3Wbb1w3oGjw3EIaHb1Onmg8uartRaCkAWOhoUNNvhqfAn5yjHEvei6jp9ZERCdzGIoIwkSJzhiR2EJ7FCKDWj0ufB66JR8WECNA6A6kB6aEAFPVMqO4fGKTvYJctCOh8dCZYmMn0kzy3tRYfx3thIgS2UFnuTMf99FsU11y0"/>
+</div>
+<div class="absolute bottom-4 left-4 z-10">
+<p class="font-label font-black text-3xl italic text-on-surface tracking-tighter leading-none">LH44</p>
+<p class="font-body text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1 font-bold">L. Hamilton</p>
+</div>
+</div>
+<!-- Driver 2 -->
+<div class="bg-surface-container-low p-4 pb-0 flex flex-col items-center">
+<div class="w-12 h-12 mb-4">
+<img class="w-full h-full object-contain grayscale brightness-125" data-alt="Mercedes AMG Petronas Formula One Team logo with sharp chrome silver finish on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3rFb3VXsQ6s5HTJX2iR1D3cZ0fgSLw5Na9jGIc6Ql1KLpPa07XzYoEZLRnarKI68lKXNVu7shf4DLyg7MZ5CqVJsEVN1QVk5i22YHG58cZcOqnc8HLXtvJiIaBp3uWR7EK9ZpteQ9cC_liJ7vqIaSaBh6XPgMV9u0ZtZu2_8lm-EvCPNfVGnps0M0g4RLchkQYBmOtB29_Pxiq310PrK0o3rv9O5O0eA-DFfXfWOgyLla8DwlXP4acmy1DpzmKK4NhWIr53m8rw44"/>
+</div>
+<div class="relative w-full aspect-[4/5] mt-auto">
+<img class="absolute bottom-0 right-0 w-full h-full object-cover object-top" data-alt="George Russell portrait looking ahead with racing suit and blurred pit lane background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMNCTZp9di5h_ahnBMDUl8AY1lm6WUIers31p-UeCUqy2E0bdl7GFTjLr5vucrsVe_inXfwDzrp5vGOcZJy4BznahiUwoBnLUvCejioo45DDjRX8zIAMLx1F1r3TpFao45dg9fJ_3DQFBqyoPtfR9WHOcWvprZbYfX_ETOJEsWL75wa2_tbUCqZY0wIK5upUOHTzAmlJYynbrzR4iQi8d1VD3PsjIL1Nbv6ElC00hm-Sa9EPQiaz2ZfisRZiU9YmFl-CBCD1uBk9Qn"/>
+</div>
+<div class="absolute bottom-4 right-4 z-10 text-right">
+<p class="font-label font-black text-3xl italic text-on-surface tracking-tighter leading-none">GR63</p>
+<p class="font-body text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1 font-bold">G. Russell</p>
+</div>
+</div>
+<!-- VS Badge -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+<div class="bg-primary-container text-white font-label font-black italic px-4 py-1 skew-x-[-12deg] shadow-2xl">
+                    VS
+                </div>
+</div>
+</div>
+<!-- Comparative Stats Grid -->
+<section class="space-y-8">
+<h2 class="font-label font-black text-lg text-on-surface-variant tracking-widest uppercase mb-6 flex items-center gap-3">
+<span class="h-px flex-1 bg-outline-variant/30"></span>
+                Head-to-Head Data
+                <span class="h-px flex-1 bg-outline-variant/30"></span>
+</h2>
+<!-- Stat Row: Qualifying -->
+<div class="space-y-3">
+<div class="flex justify-between items-end px-2">
+<span class="font-headline font-bold text-2xl text-on-surface">9</span>
+<span class="font-label font-bold text-[10px] text-on-surface-variant tracking-[0.2em] uppercase pb-1">Qualifying</span>
+<span class="font-headline font-bold text-2xl text-on-surface">4</span>
+</div>
+<div class="flex h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden gap-1">
+<div class="h-full stats-gradient-left rounded-full" style="width: 70%;"></div>
+<div class="h-full bg-surface-container-high rounded-full flex-1"></div>
+<div class="h-full stats-gradient-right rounded-full" style="width: 30%;"></div>
+</div>
+</div>
+<!-- Stat Row: Race Wins -->
+<div class="space-y-3">
+<div class="flex justify-between items-end px-2">
+<span class="font-headline font-bold text-2xl text-on-surface">6</span>
+<span class="font-label font-bold text-[10px] text-on-surface-variant tracking-[0.2em] uppercase pb-1">Race Wins</span>
+<span class="font-headline font-bold text-2xl text-on-surface">7</span>
+</div>
+<div class="flex h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden gap-1">
+<div class="h-full stats-gradient-left rounded-full" style="width: 45%;"></div>
+<div class="h-full bg-surface-container-high rounded-full flex-1"></div>
+<div class="h-full stats-gradient-right rounded-full" style="width: 55%;"></div>
+</div>
+</div>
+<!-- Stat Row: Avg Pace Gap -->
+<div class="space-y-3">
+<div class="flex justify-between items-end px-2">
+<span class="font-headline font-medium text-lg text-secondary">+0.142s</span>
+<span class="font-label font-bold text-[10px] text-on-surface-variant tracking-[0.2em] uppercase pb-1">Avg. Pace Gap</span>
+<span class="font-headline font-medium text-lg text-on-surface-variant">---</span>
+</div>
+<div class="flex h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container" style="width: 85%;"></div>
+<div class="h-full bg-surface-container-high flex-1"></div>
+</div>
+</div>
+<!-- Stat Row: Points -->
+<div class="space-y-3">
+<div class="flex justify-between items-end px-2">
+<span class="font-headline font-bold text-2xl text-primary">154</span>
+<span class="font-label font-bold text-[10px] text-on-surface-variant tracking-[0.2em] uppercase pb-1">Championship Points</span>
+<span class="font-headline font-bold text-2xl text-on-surface">132</span>
+</div>
+<div class="flex h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden gap-1">
+<div class="h-full bg-primary-container rounded-full" style="width: 54%;"></div>
+<div class="h-full bg-surface-container-high rounded-full flex-1"></div>
+<div class="h-full stats-gradient-right rounded-full" style="width: 46%;"></div>
+</div>
+</div>
+</section>
+<!-- Insights Card -->
+<div class="mt-12 p-6 rounded-2xl bg-surface-container-low border-l-4 border-primary-container relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl">lightbulb</span>
+</div>
+<h3 class="font-label font-bold text-xs tracking-widest text-primary-container uppercase mb-3">AI Analysis</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                Hamilton shows superior tire management in <span class="text-on-surface font-bold">Stint 2</span> metrics, gaining an average of <span class="text-secondary font-bold">0.08s</span> over Russell during long runs. However, Russell's Qualifying delta remains within <span class="text-on-surface font-bold">0.05%</span>, making this the tightest teammate battle on the grid.
+            </p>
+</div>
+</main>
+<!-- Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pb-safe bg-[#0e0e0e] h-20 z-50 border-t border-[#ffffff15] shadow-2xl">
+<a class="flex flex-col items-center justify-center text-[#999999] hover:text-[#ffb4a8] transition-all" href="#">
+<span class="material-symbols-outlined mb-1">speed</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-wider">DASHBOARD</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#999999] hover:text-[#ffb4a8] transition-all" href="#">
+<span class="material-symbols-outlined mb-1">sensors</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-wider">LIVE</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#e10600] bg-[#e10600]/10 rounded-xl px-4 py-1 scale-110 duration-300" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-wider">RIVALRY</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#999999] hover:text-[#ffb4a8] transition-all" href="#">
+<span class="material-symbols-outlined mb-1">map</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-wider">CIRCUITS</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#999999] hover:text-[#ffb4a8] transition-all" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-wider">GARAGE</span>
+</a>
+</nav>
+</body></html>
