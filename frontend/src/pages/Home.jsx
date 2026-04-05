@@ -6,7 +6,7 @@ import { useRaceCountdown } from '../utils/useRaceCountdown';
 import { useState, useEffect } from 'react';
 import PageTransition from '../components/PageTransition';
 import { getDrivers } from '../services/api';
-import { getTeamColor } from '../utils/teamColors';
+import { getTeamColor, DRIVER_DATA } from '../utils/teamColors';
 
 // ── Last Race Summary Card ──────────────────────────────────────────────────
 const LAST_RACE = {
@@ -73,7 +73,7 @@ function LastRaceCard({ dur }) {
               <div className="h-0.5 w-8 rounded-full" style={{ background: color }} />
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base">{p.flag}</span>
+                  <span className="text-base">{DRIVER_DATA[p.code]?.flag || p.flag}</span>
                   <span
                     className="font-['Space_Grotesk'] font-black text-base text-white"
                     style={{ textShadow: `0 0 20px ${color}60` }}
@@ -96,7 +96,7 @@ function LastRaceCard({ dur }) {
           <div className="w-2 h-2 rounded-full bg-[#a855f7]" />
           <span className="font-['Space_Grotesk'] text-[10px] text-[#666] uppercase tracking-widest">Fastest Lap</span>
           <span className="font-['Space_Grotesk'] font-bold text-xs text-[#a855f7]">
-            {LAST_RACE.fastestLap.driver} — {LAST_RACE.fastestLap.time}
+            {DRIVER_DATA[LAST_RACE.fastestLap.driver]?.flag} {LAST_RACE.fastestLap.driver} — {LAST_RACE.fastestLap.time}
           </span>
         </div>
         <Link
@@ -350,8 +350,8 @@ export default function Home() {
               <div className="flex justify-between items-start">
                 <div>
                   <span className="font-['Space_Grotesk'] text-xs font-bold text-[#e10600] tracking-widest uppercase mb-2 block">Current Leader</span>
-                  <h2 className="text-4xl font-['Space_Grotesk'] font-bold text-white uppercase tracking-tight">
-                    {loading ? 'LOADING...' : leader.name}
+                  <h2 className="text-4xl font-['Space_Grotesk'] font-bold text-white uppercase tracking-tight flex items-center gap-3">
+                    {loading ? 'LOADING...' : <>{DRIVER_DATA[leader.code]?.flag} {leader.name}</>}
                   </h2>
                   {!loading && error && <span className="text-xs text-[#e10600] mt-1 block">{error}</span>}
                 </div>

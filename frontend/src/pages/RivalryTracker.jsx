@@ -6,6 +6,7 @@ import { useTypewriter } from '../utils/useTypewriter';
 import CustomDropdown from '../components/CustomDropdown';
 import PageTransition from '../components/PageTransition';
 import { getRivalryStats, getDrivers } from '../services/api';
+import { DRIVER_DATA } from '../utils/teamColors';
 
 export default function RivalryTracker() {
   const shouldReduceMotion = useReducedMotion();
@@ -170,7 +171,7 @@ export default function RivalryTracker() {
               />
             </div>
             <div className="absolute bottom-6 left-6 z-10">
-              <p className="font-['Space_Grotesk'] font-black text-5xl italic text-white tracking-tighter leading-none drop-shadow-lg">{driver1}</p>
+              <p className="font-['Space_Grotesk'] font-black text-5xl italic text-white tracking-tighter leading-none drop-shadow-lg">{DRIVER_DATA[driver1]?.flag} {driver1}</p>
               <p className="font-body text-xs text-[#e9bcb5] uppercase tracking-[0.2em] mt-2 font-bold drop-shadow-md">Driver 1</p>
             </div>
           </motion.div>
@@ -197,7 +198,7 @@ export default function RivalryTracker() {
               />
             </div>
             <div className="absolute bottom-6 right-6 z-10 text-right">
-              <p className="font-['Space_Grotesk'] font-black text-5xl italic text-white tracking-tighter leading-none drop-shadow-lg">{driver2}</p>
+              <p className="font-['Space_Grotesk'] font-black text-5xl italic text-white tracking-tighter leading-none drop-shadow-lg">{DRIVER_DATA[driver2]?.flag} {driver2}</p>
               <p className="font-body text-xs text-[#e9bcb5] uppercase tracking-[0.2em] mt-2 font-bold drop-shadow-md">Driver 2</p>
             </div>
           </motion.div>

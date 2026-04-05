@@ -6,6 +6,7 @@ import CustomDropdown from '../components/CustomDropdown';
 import ScrollProgress from '../components/ScrollProgress';
 import { getLapTimes, getTireStrategy, getAvailableRaces } from '../services/api';
 import PageTransition from '../components/PageTransition';
+import { DRIVER_DATA } from '../utils/teamColors';
 
 export default function RaceAnalysis() {
   const shouldReduceMotion = useReducedMotion();
@@ -156,11 +157,11 @@ export default function RaceAnalysis() {
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
                 <span className="w-4 h-1 bg-[#e10600]"></span>
-                <span className="text-xs font-['Space_Grotesk'] font-bold uppercase text-white">{d1}</span>
+                <span className="text-xs font-['Space_Grotesk'] font-bold uppercase text-white">{DRIVER_DATA[d1]?.flag} {d1}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-4 h-1 bg-white"></span>
-                <span className="text-xs font-['Space_Grotesk'] font-bold uppercase text-white">{d2}</span>
+                <span className="text-xs font-['Space_Grotesk'] font-bold uppercase text-white">{DRIVER_DATA[d2]?.flag} {d2}</span>
               </div>
             </div>
           </div>
@@ -231,7 +232,7 @@ export default function RaceAnalysis() {
                 return (
                   <div key={driver.driver} className="space-y-3">
                     <div className="flex justify-between items-center text-xs font-['Space_Grotesk'] font-bold uppercase tracking-widest text-white">
-                      <span>{driver.driver}</span>
+                      <span>{DRIVER_DATA[driver.driver]?.flag} {driver.driver}</span>
                       <span className="text-[#e9bcb5]">{detail}</span>
                     </div>
                     <motion.div

@@ -7,6 +7,7 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import CustomDropdown from '../components/CustomDropdown';
 import PageTransition from '../components/PageTransition';
 import { getFantasyPicks, getAvailableRaces } from '../services/api';
+import { DRIVER_DATA } from '../utils/teamColors';
 
 export default function FantasyPicks() {
   const shouldReduceMotion = useReducedMotion();
@@ -351,7 +352,10 @@ export default function FantasyPicks() {
                        </div>
 
                        <div className="p-6">
-                          <h3 className="font-['Space_Grotesk'] font-bold text-white text-xl mb-1">{driver.name}</h3>
+                          <h3 className="font-['Space_Grotesk'] font-bold text-white text-xl mb-1 flex items-center gap-2">
+                            <span>{DRIVER_DATA[driver.code]?.flag}</span>
+                            <span>{driver.name}</span>
+                          </h3>
                           <p className="text-xs text-[#e9bcb5] font-bold uppercase tracking-tighter opacity-60 mb-3">{driver.team}</p>
                           
                           {driver.reasoning && (
