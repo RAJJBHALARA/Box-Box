@@ -45,4 +45,21 @@ export const fetchLapExplanation = async (year, race, driver, lap) => {
   return response.data;
 };
 
+export const fetchPitWallAlert = async (circuit) => {
+  const response = await api.get(`/api/pitwall-alert?circuit=${encodeURIComponent(circuit)}`);
+  return response.data;
+};
+
+export const fetchCurrentForm = async () => {
+  const response = await api.get('/api/current-form');
+  return response.data;
+};
+
+// Add interceptor to include API Key
+api.interceptors.request.use(config => {
+  config.headers['X-API-Key'] = 'fallback_dev_key'; // Default local dev key
+  // We can let the environment override later
+  return config;
+});
+
 export default api;

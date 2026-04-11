@@ -8,6 +8,7 @@ import PageTransition from '../components/PageTransition';
 import { getDrivers } from '../services/api';
 import { getTeamColor, DRIVER_DATA } from '../utils/teamColors';
 import { getFlagUrl } from '../utils/flagHelper';
+import DriverImage from '../components/DriverImage';
 
 // ── Last Race Summary Card ──────────────────────────────────────────────────
 const LAST_RACE = {
@@ -153,7 +154,7 @@ export default function Home() {
             <img
               className="w-full h-full object-cover"
               alt="F1 car on track"
-              src="https://images.unsplash.com/photo-1541252260730-0412e8e2108e?q=80&w=2000&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1538332576228-eb5b4c4de6f5?q=80&w=2000&auto=format&fit=crop"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/40 to-transparent"></div>
           </div>
@@ -367,7 +368,7 @@ export default function Home() {
                 <div className="text-5xl font-['Space_Grotesk'] font-extrabold text-[#ffffff10] italic">01</div>
               </div>
               <div className="mt-8 flex-1 flex items-center justify-center">
-                 <img className="h-64 object-contain filter grayscale contrast-125 hover:grayscale-0 transition-all duration-700" alt="Driver" src="https://media.formula1.com/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/2col/image.png"/>
+                 <DriverImage code={leader.code || 'VER'} name={leader.name} size={200} />
               </div>
               <div className="grid grid-cols-2 gap-4 mt-8 border-t border-white/5 pt-6">
                 <div>

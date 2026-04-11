@@ -74,29 +74,52 @@ def get_fantasy_picks(race: str, form_data: dict) -> dict:
         return parse_json_response("{}") # Will trigger the safe fallback structure
 
 def explain_lap(telemetry: dict, driver: str, race: str, lap: int) -> str:
-    prompt = f"""
-    You are an F1 telemetry expert who explains 
-    data in exciting, fan-friendly language.
-    
-    Driver: {driver}
-    Race: {race}
-    Lap: {lap}
-    Telemetry data:
-    {json.dumps(telemetry, indent=2)}
-    
-    Explain what happened in this lap.
-    Focus on where time was gained or lost.
-    Be specific about sector performance.
-    Maximum 120 words.
-    Be exciting and engaging for F1 fans.
-    Respond as plain text only, no JSON, no markdown.
-    """
+    prompt = f"""You are an elite F1 telemetry expert delivering a professional lap breakdown.
+
+Driver: {driver}
+Race: {race}
+Lap: {lap}
+Telemetry data:
+{json.dumps(telemetry, indent=2)}
+
+STRICT RULES — follow every one:
+- Write in perfect English only. Zero typos. Zero broken words.
+- Start DIRECTLY with the driver's name. Example: "Max Verstappen delivered..."
+- NEVER start with greetings, "Alright", "Hey", "Sure", "Great", or any pleasantry.
+- Be specific about sector performance and where time was gained or lost.
+- Maximum 120 words. Minimum 40 words.
+- Be exciting and engaging for an F1 fan audience.
+- Plain text only. No JSON, no markdown, no bullet points.
+"""
+
+    def is_valid(text: str) -> bool:
+        if not text or len(text.split()) < 30:
+            return False
+        # Check for repeated words (3+ times in a row)
+        words = text.split()
+        for i in range(len(words) - 2):
+            if words[i].lower() == words[i+1].lower() == words[i+2].lower():
+                return False
+        # Starts with a letter (not a symbol/number)
+        if not text[0].isalpha():
+            return False
+        return True
+
     try:
         response = model.generate_content(prompt)
-        return response.text.strip()
+        text = response.text.strip()
+        if is_valid(text):
+            return text
+        # One retry with stronger instruction
+        retry_prompt = prompt + "\n\nPREVIOUS ATTEMPT WAS INVALID. Start your response ONLY with the driver's name, e.g. 'Carlos Sainz...' or 'Lewis Hamilton...'"
+        response2 = model.generate_content(retry_prompt)
+        text2 = response2.text.strip()
+        if is_valid(text2):
+            return text2
+        return "Telemetry analysis unavailable for this lap."
     except Exception as e:
         print(f"[Gemini Lap Error] {e}")
-        return "Lap analysis unavailable. The PitWall AI is currently analyzing data offline."
+        return "Telemetry analysis unavailable for this lap."
 
 def get_rivalry_analysis(stats: dict, d1: str, d2: str) -> str:
     prompt = f"""
@@ -116,3 +139,22 @@ def get_rivalry_analysis(stats: dict, d1: str, d2: str) -> str:
     except Exception as e:
         print(f"[Gemini Rivalry Error] {e}")
         return "Analysis unavailable. Rivalry data processing encountered an interruption."
+
+import functools
+
+@functools.lru_cache(maxsize=32)
+def get_circuit_insight(circuit: str) -> str:
+    prompt = f"""
+    You are the head race engineer on the digital pit wall.
+    Circuit: {circuit}
+    
+    Give exactly ONE sentence of tactical insight or strategy for this specific track.
+    Sound sharp, professional, and focus on telemetry, tires, or DRS.
+    No hashtags, no pleasantries, just data-driven tactical advice.
+    """
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        print(f"[Gemini Circuit Insight Error] {e}")
+        return "Tactical data stream interrupted. Awaiting telemetry refresh."

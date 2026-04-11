@@ -71,3 +71,9 @@ export const getDriverStandings = (year) =>
 
 export const getConstructorStandings = (year) =>
   api.get(`/api/standings/constructors?year=${year}`)
+
+export const getPitWallAlert = (circuit) =>
+  api.get(`/api/pitwall-alert?circuit=${encodeURIComponent(circuit)}`)
+
+export const getCurrentForm = () =>
+  api.get(`/api/current-form`)

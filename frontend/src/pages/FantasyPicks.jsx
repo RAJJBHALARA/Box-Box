@@ -6,9 +6,10 @@ import { useTypewriter } from '../utils/useTypewriter';
 import SkeletonLoader from '../components/SkeletonLoader';
 import CustomDropdown from '../components/CustomDropdown';
 import PageTransition from '../components/PageTransition';
-import { getFantasyPicks, getAvailableRaces } from '../services/api';
+import { getFantasyPicks, getAvailableRaces, getCurrentForm } from '../services/api';
 import { DRIVER_DATA } from '../utils/teamColors';
 import { getFlagUrl } from '../utils/flagHelper';
+import DriverImage from '../components/DriverImage';
 
 export default function FantasyPicks() {
   const shouldReduceMotion = useReducedMotion();
@@ -19,7 +20,7 @@ export default function FantasyPicks() {
   const [error, setError] = useState(null);
   const { containerVariants, itemVariants } = useStaggerChildren(0.1, 0.05);
 
-  const [season, setSeason] = useState('2024');
+  const [season, setSeason] = useState('2025');
   const [selectedRace, setSelectedRace] = useState('');
   const [raceList, setRaceList] = useState([]);
 
@@ -27,6 +28,9 @@ export default function FantasyPicks() {
   const [constructor, setConstructor] = useState(null);
   const [keyInsight, setKeyInsight] = useState('');
   const [driversToAvoid, setDriversToAvoid] = useState([]);
+  
+  const [currentForm, setCurrentForm] = useState({});
+  const [formSource, setFormSource] = useState('');
 
   const displayedInsight = useTypewriter(keyInsight, 40);
 
@@ -71,17 +75,6 @@ export default function FantasyPicks() {
     });
   }
 
-  // Avatar map for known drivers
-  const avatarMap = {
-    'VER': 'https://media.formula1.com/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/2col/image.png',
-    'NOR': 'https://media.formula1.com/content/dam/fom-website/drivers/L/LANDON01_Lando_Norris/landon01.png.transform/2col/image.png',
-    'LEC': 'https://media.formula1.com/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/2col/image.png',
-    'PIA': 'https://media.formula1.com/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png.transform/2col/image.png',
-    'SAI': 'https://media.formula1.com/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/2col/image.png',
-    'HAM': 'https://media.formula1.com/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png.transform/2col/image.png',
-    'RUS': 'https://media.formula1.com/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png.transform/2col/image.png',
-    'ALO': 'https://media.formula1.com/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/2col/image.png',
-  };
 
   // Fetch race list
   useEffect(() => {
@@ -99,6 +92,19 @@ export default function FantasyPicks() {
     };
     fetchRaces();
   }, [season]);
+
+  // Fetch form data
+  useEffect(() => {
+    let active = true;
+    getCurrentForm()
+      .then(res => {
+        if (!active) return;
+        setCurrentForm(res.data.form_data || {});
+        setFormSource(res.data.source || '');
+      })
+      .catch(err => console.error("Failed to fetch form data", err));
+    return () => { active = false; };
+  }, []);
 
   // Fetch fantasy picks
   useEffect(() => {
@@ -124,7 +130,6 @@ export default function FantasyPicks() {
           price: d.price_range || '---',
           team: d.team || 'Unknown',
           reasoning: d.reasoning || '',
-          avatar: avatarMap[d.code] || null,
           trend: i < 3 ? 'up' : 'static',
         }));
 
@@ -163,7 +168,7 @@ export default function FantasyPicks() {
         {/* Race selector */}
         <div className="flex flex-wrap gap-4 mb-10">
           <div className="w-28">
-            <CustomDropdown label="Season" value={season} options={['2024', '2023']} onChange={setSeason} />
+            <CustomDropdown label="Season" value={season} options={['2025', '2024', '2023']} onChange={setSeason} />
           </div>
           <div className="w-64">
             <CustomDropdown label="Grand Prix" value={selectedRace} options={raceList} onChange={setSelectedRace} />
@@ -331,17 +336,12 @@ export default function FantasyPicks() {
                        className="group bg-[#1c1b1b] rounded-2xl overflow-hidden border border-white/5 hover:border-[#e10600]/30 transition-colors"
                      >
                        <div className="relative h-48 bg-[#2a2a2a] overflow-hidden flex items-center justify-center">
-                          {driver.avatar ? (
-                            <img 
-                              src={driver.avatar} 
-                              alt={driver.name} 
-                              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-48 object-contain transition-transform duration-700 group-hover:scale-110" 
-                            />
-                          ) : (
-                            <div className="w-24 h-24 rounded-full bg-[#e10600]/10 flex items-center justify-center">
-                              <span className="font-['Space_Grotesk'] font-black text-3xl text-[#e10600]">{driver.code}</span>
-                            </div>
-                          )}
+                          <DriverImage
+                            code={driver.code}
+                            name={driver.name}
+                            size={192}
+                            className="absolute bottom-0 left-1/2 -translate-x-1/2 transition-transform duration-700 group-hover:scale-110"
+                          />
                           <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10">
                              <div className="flex items-center gap-1.5">
                                 {driver.trend === 'up' && <TrendingUp size={14} className="text-[#47efda]" />}
@@ -365,6 +365,24 @@ export default function FantasyPicks() {
                             <p className="text-xs text-[#999] leading-relaxed mb-4 line-clamp-2">{driver.reasoning}</p>
                           )}
                           
+                          {currentForm[driver.code] && currentForm[driver.code].length > 0 && (
+                            <div className="mb-4 flex flex-col gap-1.5">
+                              <span className="text-[10px] text-[#999] uppercase tracking-widest flex items-center gap-1">
+                                Recent Form {formSource === 'OpenF1 2025' ? '(2025 OpenF1)' : ''}
+                              </span>
+                              <div className="flex gap-2">
+                                {currentForm[driver.code].map((f, i) => (
+                                  <div key={i} className="flex flex-col items-center justify-center bg-black/40 border border-white/5 rounded-md px-2 py-1 flex-1 overflow-hidden">
+                                    <span className="text-[9px] text-[#e9bcb5] truncate w-full text-center" title={f.race}>{f.race.split(' ')[0]}</span>
+                                    <span className={`font-['Space_Grotesk'] font-bold text-sm ${f.position <= 3 ? 'text-[#47efda]' : f.position <= 10 ? 'text-white' : 'text-[#e10600]'}`}>
+                                      P{f.position}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           <div className="flex justify-between items-center pt-4 border-t border-white/5">
                              <div>
                                <p className="text-[10px] text-[#999999] uppercase tracking-widest mb-1">Price</p>

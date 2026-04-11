@@ -8,6 +8,28 @@ import PageTransition from '../components/PageTransition';
 import { getRivalryStats, getDrivers } from '../services/api';
 import { DRIVER_DATA } from '../utils/teamColors';
 import { getFlagUrl } from '../utils/flagHelper';
+import DriverImage from '../components/DriverImage';
+
+const TEAM_GRADIENTS = {
+  'Mercedes':          'linear-gradient(180deg, #27F4D2 0%, #0a0a0a 60%)',
+  'Red Bull Racing':   'linear-gradient(180deg, #3671C6 0%, #0a0a0a 60%)',
+  'Ferrari':           'linear-gradient(180deg, #E8002D 0%, #0a0a0a 60%)',
+  'McLaren':          'linear-gradient(180deg, #FF8000 0%, #0a0a0a 60%)',
+  'Aston Martin':     'linear-gradient(180deg, #358C75 0%, #0a0a0a 60%)',
+  'Alpine':            'linear-gradient(180deg, #FF87BC 0%, #0a0a0a 60%)',
+  'Williams':          'linear-gradient(180deg, #37BEDD 0%, #0a0a0a 60%)',
+  'Haas':              'linear-gradient(180deg, #B6BABD 0%, #0a0a0a 60%)',
+  'Kick Sauber':      'linear-gradient(180deg, #52E252 0%, #0a0a0a 60%)',
+  'RB':                'linear-gradient(180deg, #6692FF 0%, #0a0a0a 60%)',
+};
+
+const DRIVER_TEAMS = {
+  VER:'Red Bull Racing', NOR:'McLaren', PIA:'McLaren', LEC:'Ferrari',
+  HAM:'Ferrari', RUS:'Mercedes', SAI:'Williams', ALO:'Aston Martin',
+  STR:'Aston Martin', OCO:'Haas', GAS:'Alpine', TSU:'RB',
+  ALB:'Williams', HUL:'Kick Sauber', MAG:'Haas', BOT:'Kick Sauber',
+  ANT:'Mercedes', BEA:'Haas', LAW:'RB', DOO:'Alpine', HAD:'RB', COL:'Alpine',
+};
 
 export default function RivalryTracker() {
   const shouldReduceMotion = useReducedMotion();
@@ -155,21 +177,11 @@ export default function RivalryTracker() {
             initial={{ x: -80, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: dur(0.6), ease: "easeOut" }}
-            className="bg-[#1c1b1b] p-6 pb-0 flex flex-col items-center relative"
+            className="p-6 pb-0 flex flex-col items-center relative overflow-hidden"
+            style={{ background: TEAM_GRADIENTS[DRIVER_TEAMS[driver1]] || '#1c1b1b' }}
           >
-            <div className="w-16 h-16 mb-6">
-              <img 
-                className="w-full h-full object-contain grayscale brightness-125" 
-                alt="Team Logo" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGPK19DZCBVy6-sLhcA6hUt8Tyu80tQo225oq5ZPQb8mze5xiNLebrGZiRbSOKSeLV3eGLu1W46DXes7P236q3ie-9mgYU4VMqpmgkJa2DbxNyc_ECK9BTGj1L21WtS6qnagjMKpDzLuIAUJW_RhsssL2WSfjAl-jd-maSDoNwysM7EeK1cLj8p6HY0pfWvRmyhn2hpzNi-1o812eGtpYEqzreVQiHFYnFzftVt2-nTSbqB-AWHy874pN-U_dQ-7gicWMfuxAKKD3Z" 
-              />
-            </div>
-            <div className="relative w-full aspect-[4/5] mt-auto">
-              <img 
-                className="absolute bottom-0 left-0 w-full h-full object-cover object-top" 
-                alt={driver1} 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3IVgm3OhgMcdYUPdO2JVhbmtWS3QaxqspXGQ-y1h0_32aNjXlTmXaevpnHuHYUmW7AKVqadyXPI_EnEykIdoNAWfjk9QdGtHpCNir3Wbb1w3oGjw3EIaHb1Onmg8uartRaCkAWOhoUNNvhqfAn5yjHEvei6jp9ZERCdzGIoIwkSJzhiR2EJ7FCKDWj0ufB66JR8WECNA6A6kB6aEAFPVMqO4fGKTvYJctCOh8dCZYmMn0kzy3tRYfx3thIgS2UFnuTMf99FsU11y0" 
-              />
+            <div className="relative w-full flex items-end justify-center" style={{ height: 260 }}>
+              <DriverImage code={driver1} size={200} />
             </div>
             <div className="absolute bottom-6 left-6 z-10">
               <div className="flex items-center gap-2 justify-start">
@@ -185,21 +197,11 @@ export default function RivalryTracker() {
             initial={{ x: 80, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: dur(0.6), ease: "easeOut" }}
-            className="bg-[#1c1b1b] p-6 pb-0 flex flex-col items-center relative"
+            className="p-6 pb-0 flex flex-col items-center relative overflow-hidden"
+            style={{ background: TEAM_GRADIENTS[DRIVER_TEAMS[driver2]] || '#1c1b1b' }}
           >
-            <div className="w-16 h-16 mb-6">
-              <img 
-                className="w-full h-full object-contain grayscale brightness-125" 
-                alt="Team Logo" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3rFb3VXsQ6s5HTJX2iR1D3cZ0fgSLw5Na9jGIc6Ql1KLpPa07XzYoEZLRnarKI68lKXNVu7shf4DLyg7MZ5CqVJsEVN1QVk5i22YHG58cZcOqnc8HLXtvJiIaBp3uWR7EK9ZpteQ9cC_liJ7vqIaSaBh6XPgMV9u0ZtZu2_8lm-EvCPNfVGnps0M0g4RLchkQYBmOtB29_Pxiq310PrK0o3rv9O5O0eA-DFfXfWOgyLla8DwlXP4acmy1DpzmKK4NhWIr53m8rw44" 
-              />
-            </div>
-            <div className="relative w-full aspect-[4/5] mt-auto">
-              <img 
-                className="absolute bottom-0 right-0 w-full h-full object-cover object-top" 
-                alt={driver2} 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMNCTZp9di5h_ahnBMDUl8AY1lm6WUIers31p-UeCUqy2E0bdl7GFTjLr5vucrsVe_inXfwDzrp5vGOcZJy4BznahiUwoBnLUvCejioo45DDjRX8zIAMLx1F1r3TpFao45dg9fJ_3DQFBqyoPtfR9WHOcWvprZbYfX_ETOJEsWL75wa2_tbUCqZY0wIK5upUOHTzAmlJYynbrzR4iQi8d1VD3PsjIL1Nbv6ElC00hm-Sa9EPQiaz2ZfisRZiU9YmFl-CBCD1uBk9Qn" 
-              />
+            <div className="relative w-full flex items-end justify-center" style={{ height: 260 }}>
+              <DriverImage code={driver2} size={200} />
             </div>
             <div className="absolute bottom-6 right-6 z-10 text-right">
               <div className="flex items-center gap-2 justify-end">

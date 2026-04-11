@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import Navbar from './Navbar';
+import MobileBottomNav from './MobileBottomNav';
 
 export default function Layout() {
   const [showSlowWarning, setShowSlowWarning] = useState(false);
@@ -39,6 +40,7 @@ export default function Layout() {
       <main className="pt-20 pb-24 md:pb-0 overflow-x-hidden">
         <Outlet />
       </main>
+      <MobileBottomNav />
     </div>
   );
 }

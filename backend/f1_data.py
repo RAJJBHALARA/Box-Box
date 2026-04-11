@@ -5,6 +5,33 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any, List
 
+RACE_NAME_MAP = {
+  "Albert Park Circuit": "Australia",
+  "Jeddah Corniche Circuit": "Saudi Arabia",
+  "Bahrain International Circuit": "Bahrain",
+  "Monaco Circuit": "Monaco",
+  "Circuit de Barcelona": "Spain",
+  "Silverstone Circuit": "British",
+  "Monza Circuit": "Italian",
+  "Suzuka Circuit": "Japanese",
+  "Singapore Street Circuit": "Singapore",
+  "Circuit of the Americas": "United States",
+  "Interlagos Circuit": "Brazilian",
+  "Yas Marina Circuit": "Abu Dhabi",
+  "Hungaroring": "Hungary",
+  "Spa-Francorchamps": "Belgium",
+  "Zandvoort Circuit": "Netherlands",
+  "Red Bull Ring": "Austria",
+  "Baku City Circuit": "Azerbaijan",
+  "Miami International Autodrome": "Miami",
+  "Las Vegas Street Circuit": "Las Vegas",
+  "Lusail International Circuit": "Qatar",
+  "Mexico City Circuit": "Mexico",
+  "Shanghai International Circuit": "China",
+  "Imola Circuit": "Emilia Romagna",
+  "Circuit Gilles-Villeneuve": "Canada"
+}
+
 # Setup Cache
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -64,6 +91,7 @@ def get_drivers(year: int) -> list:
 
 def get_lap_times(year: int, race: str, session_type: str) -> dict:
     try:
+        race = RACE_NAME_MAP.get(race, race)
         session = fastf1.get_session(year, race, session_type)
         session.load(telemetry=False, weather=False, messages=False)
         
@@ -110,6 +138,7 @@ def get_lap_times(year: int, race: str, session_type: str) -> dict:
 
 def get_tire_strategy(year: int, race: str) -> list:
     try:
+        race = RACE_NAME_MAP.get(race, race)
         session = fastf1.get_session(year, race, 'R')
         session.load(telemetry=False, weather=False, messages=False)
         
@@ -290,6 +319,7 @@ def get_recent_form(driver_code: str, n: int = 3) -> dict:
 
 def get_lap_telemetry(year: int, race: str, driver: str, lap_number: int) -> dict:
     try:
+        race = RACE_NAME_MAP.get(race, race)
         session = fastf1.get_session(year, race, 'R')
         session.load(telemetry=True, weather=False, messages=False)
         

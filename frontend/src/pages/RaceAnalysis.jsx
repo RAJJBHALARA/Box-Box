@@ -4,10 +4,12 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useAnimatedCounter } from '../utils/useAnimatedCounter';
 import CustomDropdown from '../components/CustomDropdown';
 import ScrollProgress from '../components/ScrollProgress';
-import { getLapTimes, getTireStrategy, getAvailableRaces } from '../services/api';
+import { getLapTimes, getTireStrategy, getAvailableRaces, getPitWallAlert } from '../services/api';
 import PageTransition from '../components/PageTransition';
 import { DRIVER_DATA } from '../utils/teamColors';
 import { getFlagUrl } from '../utils/flagHelper';
+import CircuitInfo from '../components/CircuitInfo';
+import { getCircuitInfo } from '../utils/circuitData';
 
 export default function RaceAnalysis() {
   const shouldReduceMotion = useReducedMotion();
@@ -15,7 +17,7 @@ export default function RaceAnalysis() {
   const dur = (d) => shouldReduceMotion ? 0 : isMobile ? d * 0.7 : d;
 
   const [season, setSeason] = useState('2024');
-  const [gp, setGp] = useState('MONACO GP');
+  const [gp, setGp] = useState('AUSTRALIAN GP');
   const [session, setSession] = useState('RACE');
 
   const topSpeed = useAnimatedCounter(342, 1.5, 0.3);
@@ -28,6 +30,9 @@ export default function RaceAnalysis() {
   const [races, setRaces] = useState(['Abu Dhabi Grand Prix']);
   const [lapData, setLapData] = useState({ drivers: [], laps: {} });
   const [tireStrategy, setTireStrategy] = useState([]);
+  
+  const circuitData = getCircuitInfo(gp);
+  const [aiInsight, setAiInsight] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -45,6 +50,21 @@ export default function RaceAnalysis() {
       });
     return () => { active = false; };
   }, [season]);
+
+  useEffect(() => {
+    let active = true;
+    setAiInsight(null);
+    getPitWallAlert(circuitData.circuitName)
+      .then(res => {
+        if (!active) return;
+        setAiInsight(res.data.insight);
+      })
+      .catch(err => {
+        if (!active) return;
+        console.error("Failed to load pit wall alert", err);
+      });
+    return () => { active = false; };
+  }, [gp]);
 
   useEffect(() => {
     if (!races.includes(gp)) return;
@@ -128,7 +148,7 @@ export default function RaceAnalysis() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: dur(0.4) }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-white/5 pb-8"
         >
           <CustomDropdown label="Season" value={season} options={['2024', '2023']} onChange={setSeason} />
           <CustomDropdown label="Grand Prix" value={gp} options={races} onChange={setGp} />
@@ -136,11 +156,20 @@ export default function RaceAnalysis() {
         </motion.section>
 
         {error && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-red-900/20 border border-red-500/50 rounded flex items-center gap-3 text-red-500">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-red-900/20 border border-red-500/50 rounded flex items-center gap-3 text-red-500 mb-8">
             <AlertCircle size={20} />
             <span className="font-['Space_Grotesk'] font-bold uppercase tracking-widest text-sm">{error}</span>
           </motion.div>
         )}
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          key={gp} // Force remount to trigger animations smoothly on GP change
+          transition={{ duration: dur(0.5) }}
+        >
+           <CircuitInfo circuit={circuitData} aiInsight={aiInsight} />
+        </motion.div>
 
         {/* Lap Time Evolution */}
         <motion.section

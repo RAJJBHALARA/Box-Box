@@ -7,6 +7,7 @@ import ScrollProgress from '../components/ScrollProgress';
 import PageTransition from '../components/PageTransition';
 import CustomDropdown from '../components/CustomDropdown';
 import { getAvailableRaces, getDrivers, getTelemetry } from '../services/api';
+import { getCircuitInfo } from '../utils/circuitData';
 
 export default function LapExplainer() {
   const shouldReduceMotion = useReducedMotion();
@@ -73,6 +74,9 @@ export default function LapExplainer() {
   const s2 = useAnimatedCounter(telemetry?.sector2 || 0, 1.5, 1.2, true);
   const s3 = useAnimatedCounter(telemetry?.sector3 || 0, 1.5, 1.4, true);
 
+  // Derive circuit info from selected GP for dynamic SVG map
+  const circuitInfo = getCircuitInfo(gp);
+
   const aiAnalysis = telemetry?.aiAnalysis || "Pending telemetry analysis... Please wait while the AI generates insights.";
   const displayedAnalysis = useTypewriter(error ? "Analysis Failed." : aiAnalysis, 35);
   
@@ -133,40 +137,48 @@ export default function LapExplainer() {
           >
             <div className="absolute top-6 left-6 flex items-center gap-2">
               <Map size={16} className="text-[#e10600]" />
-              <span className="text-[10px] font-bold text-white uppercase tracking-widest">MONACO CIRCUIT</span>
+              <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+                {circuitInfo?.circuitName || gp.toUpperCase()}
+              </span>
             </div>
             
             <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
-              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_20px_rgba(225,6,0,0.15)]">
+              <svg viewBox="0 0 400 300" className="w-full h-full drop-shadow-[0_0_20px_rgba(225,6,0,0.15)]">
+                {/* Background glow path */}
                 <motion.path
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 3, ease: "linear", repeat: Infinity }}
-                  d="M50,10 L70,10 L80,20 L80,40 L70,60 L50,80 L30,60 L20,40 L20,20 L30,10 Z"
+                  key={`bg-${gp}`}
+                  d={circuitInfo?.svgPath || "M100,100 C200,50 300,50 350,150 C300,250 100,250 50,150 Z"}
                   fill="none"
                   stroke="#e10600"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  className="opacity-20"
+                  strokeWidth="10"
+                  strokeLinejoin="round"
+                  className="opacity-10"
                 />
+                {/* Animated racing line */}
                 <motion.path
+                  key={`line-${gp}`}
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
-                  transition={{ duration: 5, ease: "easeInOut" }}
-                  d="M50,10 L70,10 L80,20 L80,40 L70,60 L50,80 L30,60 L20,40 L20,20 L30,10 Z"
+                  transition={{ duration: 2.5, ease: "easeInOut" }}
+                  d={circuitInfo?.svgPath || "M100,100 C200,50 300,50 350,150 C300,250 100,250 50,150 Z"}
                   fill="none"
                   stroke="#e10600"
                   strokeWidth="3"
                   strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
-                {/* Dot Following Path */}
+                {/* Animated dot chasing the path */}
                 <motion.circle
-                  r="3"
+                  key={`dot-${gp}`}
+                  r="4"
                   fill="white"
                   initial={{ offsetDistance: "0%" }}
                   animate={{ offsetDistance: "100%" }}
-                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                  style={{ offsetPath: "path('M50,10 L70,10 L80,20 L80,40 L70,60 L50,80 L30,60 L20,40 L20,20 L30,10 Z')", offsetRotate: "auto" }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  style={{
+                    offsetPath: `path('${circuitInfo?.svgPath || "M100,100 C200,50 300,50 350,150 C300,250 100,250 50,150 Z"}')`,
+                    offsetRotate: "auto"
+                  }}
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
