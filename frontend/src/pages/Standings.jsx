@@ -6,6 +6,7 @@ import { getDriverStandings, getConstructorStandings } from '../services/api';
 import { getTeamColor, DRIVER_DATA, positionChangeLabel } from '../utils/teamColors';
 import { getFlagUrl } from '../utils/flagHelper';
 import { useMode } from '../context/ModeContext';
+import ShareModal from '../components/ShareModal';
 
 const SEASON_YEAR = 2026; // Current live season
 
@@ -183,6 +184,7 @@ export default function Standings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastRound, setLastRound] = useState(null);
+  const [shareOpen, setShareOpen] = useState(false);
   const { isBeginnerMode } = useMode();
 
   useEffect(() => {
@@ -223,18 +225,32 @@ export default function Standings() {
             transition={{ duration: 0.5 }}
             className="mb-8"
           >
-            <div className="flex items-center gap-3 mb-2">
-              <Trophy size={22} className="text-[#e10600]" />
-              <span className="font-['Space_Grotesk'] text-[11px] font-bold tracking-[0.25em] text-[#666] uppercase">
-                2026 Season · After Round {lastRound ?? '…'}
-              </span>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <Trophy size={22} className="text-[#e10600]" />
+                  <span className="font-['Space_Grotesk'] text-[11px] font-bold tracking-[0.25em] text-[#666] uppercase">
+                    2026 Season · After Round {lastRound ?? '…'}
+                  </span>
+                </div>
+                <h1 className="font-['Space_Grotesk'] font-black text-4xl md:text-5xl text-white tracking-tight">
+                  {isBeginnerMode ? 'Who\'s ' : 'Championship '}<span className="text-[#e10600]">{isBeginnerMode ? 'Winning? 🏆' : 'Standings'}</span>
+                </h1>
+                {isBeginnerMode && (
+                  <p className="text-sm text-[#999] font-['Inter'] mt-2">The leaderboard for {SEASON_YEAR} — higher points = better season</p>
+                )}
+              </div>
+              {!loading && !error && driverData && (
+                <motion.button
+                  onClick={() => setShareOpen(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F59E0B]/60 text-[#F59E0B] font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest hover:bg-[#F59E0B] hover:text-black transition-all flex-shrink-0"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ↗ SHARE
+                </motion.button>
+              )}
             </div>
-            <h1 className="font-['Space_Grotesk'] font-black text-4xl md:text-5xl text-white tracking-tight">
-              {isBeginnerMode ? 'Who\'s ' : 'Championship '}<span className="text-[#e10600]">{isBeginnerMode ? 'Winning? 🏆' : 'Standings'}</span>
-            </h1>
-            {isBeginnerMode && (
-              <p className="text-sm text-[#999] font-['Inter'] mt-2">The leaderboard for {SEASON_YEAR} — higher points = better season</p>
-            )}
           </motion.div>
 
           {/* Tab Switcher */}
@@ -378,6 +394,21 @@ export default function Standings() {
           </AnimatePresence>
         </div>
       </div>
+      {driverData && driverData.length >= 3 && (
+        <ShareModal
+          isOpen={shareOpen}
+          onClose={() => setShareOpen(false)}
+          raceData={{
+            raceName: `${SEASON_YEAR} Championship`,
+            round: `After Round ${lastRound ?? '?'}`,
+            year: String(SEASON_YEAR),
+            p1: { code: driverData[0]?.driverId?.toUpperCase()?.slice(0,3) || 'P1', name: `${driverData[0]?.givenName} ${driverData[0]?.familyName}`, team: driverData[0]?.constructorName, pts: `+${driverData[0]?.points}` },
+            p2: { code: driverData[1]?.driverId?.toUpperCase()?.slice(0,3) || 'P2', name: `${driverData[1]?.givenName} ${driverData[1]?.familyName}`, team: driverData[1]?.constructorName, pts: `+${driverData[1]?.points}` },
+            p3: { code: driverData[2]?.driverId?.toUpperCase()?.slice(0,3) || 'P3', name: `${driverData[2]?.givenName} ${driverData[2]?.familyName}`, team: driverData[2]?.constructorName, pts: `+${driverData[2]?.points}` },
+            fastestLap: { driver: 'Championship Leader', time: `${driverData[0]?.points} pts` },
+          }}
+        />
+      )}
     </PageTransition>
   );
 }

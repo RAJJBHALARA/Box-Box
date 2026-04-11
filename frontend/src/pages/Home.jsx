@@ -10,6 +10,7 @@ import { getTeamColor, DRIVER_DATA } from '../utils/teamColors';
 import { getFlagUrl } from '../utils/flagHelper';
 import DriverImage from '../components/DriverImage';
 import { useMode } from '../context/ModeContext';
+import ShareModal from '../components/ShareModal';
 
 // ── Last Race Summary Card ──────────────────────────────────────────────────
 const LAST_RACE = {
@@ -28,6 +29,17 @@ const LAST_RACE = {
 
 function LastRaceCard({ dur }) {
   const shouldReduceMotion = useReducedMotion();
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const shareData = {
+    raceName: LAST_RACE.name,
+    round: LAST_RACE.round,
+    year: '2026',
+    p1: { code: LAST_RACE.podium[0].code, name: LAST_RACE.podium[0].name, team: LAST_RACE.podium[0].team, pts: LAST_RACE.podium[0].pts },
+    p2: { code: LAST_RACE.podium[1].code, name: LAST_RACE.podium[1].name, team: LAST_RACE.podium[1].team, pts: LAST_RACE.podium[1].pts },
+    p3: { code: LAST_RACE.podium[2].code, name: LAST_RACE.podium[2].name, team: LAST_RACE.podium[2].team, pts: LAST_RACE.podium[2].pts },
+    fastestLap: { driver: LAST_RACE.fastestLap.driver, time: LAST_RACE.fastestLap.time },
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -105,13 +117,24 @@ function LastRaceCard({ dur }) {
             {LAST_RACE.fastestLap.driver} — {LAST_RACE.fastestLap.time}
           </span>
         </div>
-        <Link
-          to="/standings"
-          className="flex items-center gap-1 font-['Space_Grotesk'] text-[10px] font-bold text-[#e10600] uppercase tracking-widest hover:gap-2 transition-all"
-        >
-          Full Standings <ChevronRight size={12} />
-        </Link>
+        <div className="flex items-center gap-3">
+          <motion.button
+            onClick={() => setShareOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#F59E0B]/60 text-[#F59E0B] font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest hover:bg-[#F59E0B] hover:text-black transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            ↗ SHARE
+          </motion.button>
+          <Link
+            to="/standings"
+            className="flex items-center gap-1 font-['Space_Grotesk'] text-[10px] font-bold text-[#e10600] uppercase tracking-widest hover:gap-2 transition-all"
+          >
+            Full Standings <ChevronRight size={12} />
+          </Link>
+        </div>
       </div>
+      <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} raceData={shareData} />
     </motion.div>
   );
 }

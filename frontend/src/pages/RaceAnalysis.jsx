@@ -11,6 +11,7 @@ import { getFlagUrl } from '../utils/flagHelper';
 import CircuitInfo from '../components/CircuitInfo';
 import { getCircuitInfo } from '../utils/circuitData';
 import { useMode } from '../context/ModeContext';
+import ShareModal from '../components/ShareModal';
 
 export default function RaceAnalysis() {
   const shouldReduceMotion = useReducedMotion();
@@ -35,6 +36,7 @@ export default function RaceAnalysis() {
   const circuitData = getCircuitInfo(gp);
   const [aiInsight, setAiInsight] = useState(null);
   const { isBeginnerMode } = useMode();
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -136,13 +138,23 @@ export default function RaceAnalysis() {
           className="flex items-center justify-between"
         >
           <h1 className="font-['Space_Grotesk'] font-bold tracking-[-0.02em] uppercase text-3xl text-[#ffb4a8]">RACE ANALYSIS</h1>
-          <motion.span
-            animate={{ boxShadow: shouldReduceMotion ? 'none' : ['0 0 0px #01d2be', '0 0 10px #01d2be', '0 0 0px #01d2be'] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-[10px] font-bold text-[#47efda] uppercase tracking-widest bg-[#01d2be]/10 px-3 py-1.5 rounded"
-          >
-            Live Data
-          </motion.span>
+          <div className="flex items-center gap-3">
+            <motion.button
+              onClick={() => setShareOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#F59E0B]/60 text-[#F59E0B] font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest hover:bg-[#F59E0B] hover:text-black transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              ↗ SHARE
+            </motion.button>
+            <motion.span
+              animate={{ boxShadow: shouldReduceMotion ? 'none' : ['0 0 0px #01d2be', '0 0 10px #01d2be', '0 0 0px #01d2be'] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-[10px] font-bold text-[#47efda] uppercase tracking-widest bg-[#01d2be]/10 px-3 py-1.5 rounded"
+            >
+              Live Data
+            </motion.span>
+          </div>
         </motion.div>
 
         {/* Dropdown Selectors */}
@@ -405,6 +417,25 @@ export default function RaceAnalysis() {
           </motion.div>
         </section>
       </div>
+      <ShareModal
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        raceData={{
+          raceName: gp.replace(' GRAND PRIX', ' GP').replace(' Grand Prix', ' GP'),
+          round: `${season} Season`,
+          year: season,
+          p1: lapData.drivers[0]
+            ? { code: lapData.drivers[0], name: lapData.drivers[0], team: DRIVER_DATA[lapData.drivers[0]]?.team || 'F1', pts: '+25' }
+            : { code: 'P1', name: 'Race Winner', team: 'F1 Team', pts: '+25' },
+          p2: lapData.drivers[1]
+            ? { code: lapData.drivers[1], name: lapData.drivers[1], team: DRIVER_DATA[lapData.drivers[1]]?.team || 'F1', pts: '+18' }
+            : { code: 'P2', name: 'P2 Driver', team: 'F1 Team', pts: '+18' },
+          p3: lapData.drivers[2]
+            ? { code: lapData.drivers[2], name: lapData.drivers[2], team: DRIVER_DATA[lapData.drivers[2]]?.team || 'F1', pts: '+15' }
+            : { code: 'P3', name: 'P3 Driver', team: 'F1 Team', pts: '+15' },
+          fastestLap: { driver: lapData.drivers[0] || 'Fastest Driver', time: '—' },
+        }}
+      />
     </PageTransition>
   );
 }

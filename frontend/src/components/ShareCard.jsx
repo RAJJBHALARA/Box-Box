@@ -1,0 +1,384 @@
+import React, { useState, useEffect } from 'react';
+import { getDriverImage } from '../utils/driverImages';
+
+// ── Team colour lookup ────────────────────────────────────────────────────────
+export const getShareTeamColor = (team = '') => {
+  const map = {
+    'Red Bull Racing':  '#3671C6',
+    'Red Bull':         '#3671C6',
+    'Scuderia Ferrari': '#E8002D',
+    'Ferrari':          '#E8002D',
+    'McLaren F1 Team':  '#FF8000',
+    'McLaren':          '#FF8000',
+    'Mercedes':         '#27F4D2',
+    'Aston Martin':     '#229971',
+    'Alpine F1 Team':   '#0093CC',
+    'Alpine':           '#0093CC',
+    'Williams Racing':  '#64C4FF',
+    'Williams':         '#64C4FF',
+    'Haas F1 Team':     '#B6BABD',
+    'Haas':             '#B6BABD',
+    'RB F1 Team':       '#6692FF',
+    'VCARB':            '#6692FF',
+    'Kick Sauber':      '#52E252',
+    'Sauber':           '#52E252',
+  };
+  return map[team] || '#E10600';
+};
+
+// ── Base64 image loader (bypasses CORS for html2canvas) ───────────────────────
+async function fetchBase64(url) {
+  try {
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+// ── Corner bracket helper ─────────────────────────────────────────────────────
+function CornerBracket({ pos }) {
+  const base = { position: 'absolute', zIndex: 10 };
+  const bar  = { background: '#E10600', borderRadius: 1 };
+  const offsets = {
+    tl: { top: 20, left: 20 },
+    tr: { top: 20, right: 20 },
+    bl: { bottom: 20, left: 20 },
+    br: { bottom: 20, right: 20 },
+  }[pos];
+  const isRight  = pos.endsWith('r');
+  const isBottom = pos.startsWith('b');
+
+  return (
+    <div style={{ ...base, ...offsets }}>
+      <div style={{ ...bar, width: 35, height: 2, position: 'absolute',
+        top: isBottom ? 'auto' : 0, bottom: isBottom ? 0 : 'auto',
+        left: isRight ? 'auto' : 0, right: isRight ? 0 : 'auto' }} />
+      <div style={{ ...bar, width: 2, height: 35, position: 'absolute',
+        top: isBottom ? 'auto' : 0, bottom: isBottom ? 0 : 'auto',
+        left: isRight ? 'auto' : 0, right: isRight ? 0 : 'auto' }} />
+    </div>
+  );
+}
+
+// ── Podium column ─────────────────────────────────────────────────────────────
+function PodiumCol({ driver, isWinner, driverImage }) {
+  const color = getShareTeamColor(driver.team);
+  const pos   = driver.pos;
+
+  const posAccent = pos === 1 ? '#FFD700' : pos === 2 ? '#C0C0C0' : '#CD7F32';
+  const posLabel  = pos === 1 ? 'WINNER'  : `P${pos}`;
+  const flex      = isWinner ? 1.5 : 1;
+  const nameSz    = isWinner ? 48 : 30;
+  const ptsSz     = isWinner ? 54 : 34;
+
+  return (
+    <div style={{
+      flex,
+      position: 'relative',
+      background: `linear-gradient(180deg, #1c1c1c 0%, #101010 100%)`,
+      borderTop: `3px solid ${posAccent}`,
+      borderRadius: 6,
+      margin: '8px 6px',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
+    }}>
+      {/* ── Ghost position number (fills empty upper area) ── */}
+      <div style={{
+        position: 'absolute',
+        top: isWinner ? -50 : -30,
+        right: isWinner ? -20 : -10,
+        fontSize: isWinner ? 340 : 220,
+        fontWeight: 900,
+        fontStyle: 'italic',
+        color: `${posAccent}${isWinner ? '0A' : '08'}`,
+        lineHeight: 1,
+        fontFamily: "'Space Grotesk', sans-serif",
+        userSelect: 'none',
+        zIndex: 0,
+      }}>{pos}</div>
+
+      {/* ── Team colour splash ── */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0,
+        height: isWinner ? '55%' : '45%',
+        background: `linear-gradient(180deg, ${color}${isWinner ? '30' : '18'}, transparent)`,
+        zIndex: 0,
+      }} />
+
+      {/* ── Speed line pattern (fills upper area) ── */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0,
+        height: '60%',
+        backgroundImage: `repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px)`,
+        zIndex: 0,
+      }} />
+
+      {/* ── Lens flare for winner ── */}
+      {isWinner && (
+        <div style={{
+          position: 'absolute', top: 28, right: 24,
+          width: 100, height: 100,
+          background: 'radial-gradient(circle, #FFD70035, transparent)',
+          borderRadius: '50%', zIndex: 1,
+        }} />
+      )}
+
+      {/* ── Driver photo / fallback code ── */}
+      <div style={{
+        position: 'relative', zIndex: 1,
+        display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+        height: isWinner ? 280 : 180,
+        overflow: 'hidden',
+      }}>
+        {driverImage ? (
+          <img
+            src={driverImage}
+            alt={driver.name}
+            style={{
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'top center',
+              filter: 'saturate(0.8) contrast(1.1)',
+              mixBlendMode: 'luminosity',
+              opacity: 0.6,
+            }}
+          />
+        ) : (
+          /* Fallback: large outlined driver code */
+          <div style={{
+            fontSize: isWinner ? 140 : 100,
+            fontWeight: 900,
+            fontStyle: 'italic',
+            fontFamily: "'Space Grotesk', sans-serif",
+            color: 'transparent',
+            WebkitTextStroke: `2px ${color}`,
+            opacity: 0.5,
+            lineHeight: 1,
+            letterSpacing: '-0.04em',
+            textAlign: 'center',
+            userSelect: 'none',
+          }}>{driver.code}</div>
+        )}
+      </div>
+
+      {/* ── Content ── */}
+      <div style={{ position: 'relative', padding: '0 20px 20px', zIndex: 2 }}>
+        {/* Position badge */}
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          background: `${posAccent}22`,
+          border: `1px solid ${posAccent}66`,
+          borderRadius: 20, padding: '4px 12px',
+          marginBottom: 10,
+        }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: posAccent,
+            fontFamily: "'Space Grotesk', sans-serif",
+            letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            {posLabel}
+          </span>
+        </div>
+
+        {/* Flag + Driver name */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <img
+            src={`https://flagcdn.com/w40/${DRIVER_FLAG_CODES[driver.code] || 'xx'}.png`}
+            alt=""
+            style={{ width: 28, height: 21, borderRadius: 2, objectFit: 'cover' }}
+            crossOrigin="anonymous"
+          />
+          <div style={{
+            fontSize: nameSz, fontWeight: 900, color: '#fff',
+            fontFamily: "'Space Grotesk', sans-serif",
+            lineHeight: 1.05, textTransform: 'uppercase',
+            letterSpacing: '-0.02em',
+          }}>{driver.name}</div>
+        </div>
+
+        {/* Team */}
+        <div style={{
+          fontSize: 13, color, fontFamily: "'Space Grotesk', sans-serif",
+          fontWeight: 700, textTransform: 'uppercase',
+          letterSpacing: '0.1em', marginBottom: 10,
+        }}>{driver.team}</div>
+
+        {/* Points */}
+        <div style={{
+          fontSize: ptsSz, fontWeight: 900, color: posAccent,
+          fontFamily: "'Space Grotesk', sans-serif",
+          letterSpacing: '-0.02em',
+        }}>{driver.pts} <span style={{ fontSize: ptsSz * 0.45, fontWeight: 700, opacity: 0.7 }}>PTS</span></div>
+
+        {/* Team colour bottom bar */}
+        <div style={{ height: 3, background: color, borderRadius: 2, marginTop: 12 }} />
+      </div>
+    </div>
+  );
+}
+
+// ── Main ShareCard (1080×1080 or 1080×1350) ────────────────────────────────────
+export default function ShareCard({ raceData, format = 'square' }) {
+  const { raceName, round, year, p1, p2, p3, fastestLap } = raceData;
+  const [driverImages, setDriverImages] = useState({});
+
+  // Load driver images as base64 to bypass CORS for html2canvas
+  useEffect(() => {
+    let cancelled = false;
+    const loadImages = async () => {
+      const images = {};
+      for (const driver of [p1, p2, p3]) {
+        if (!driver?.code) continue;
+        const url = getDriverImage(driver.code);
+        if (!url) continue;
+        const b64 = await fetchBase64(url);
+        if (!cancelled && b64) images[driver.code] = b64;
+      }
+      if (!cancelled) setDriverImages(images);
+    };
+    loadImages();
+    return () => { cancelled = true; };
+  }, [p1?.code, p2?.code, p3?.code]);
+
+  const d1 = { ...p1, pos: 1 };
+  const d2 = { ...p2, pos: 2 };
+  const d3 = { ...p3, pos: 3 };
+
+  const W = 1080, H = format === 'portrait' ? 1350 : 1080;
+
+  return (
+    <div
+      id="share-card"
+      style={{
+        width: W, height: H,
+        background: '#080808',
+        position: 'relative',
+        overflow: 'hidden',
+        fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+        display: 'flex',
+        flexDirection: 'column',
+        flexShrink: 0,
+      }}
+    >
+      {/* ── Background Layers ── */}
+      {/* Red radial glow */}
+      <div style={{
+        position: 'absolute', top: -120, left: '50%',
+        transform: 'translateX(-50%)',
+        width: 960, height: 660,
+        background: 'radial-gradient(ellipse, #E1060040 0%, #E1060010 35%, transparent 65%)',
+        zIndex: 0, pointerEvents: 'none',
+      }} />
+
+      {/* Carbon fiber crosshatch */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 0,
+        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.012) 2px, rgba(255,255,255,0.012) 4px)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Scanline overlay */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 0,
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.008) 3px, rgba(255,255,255,0.008) 4px)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Corner brackets */}
+      {['tl','tr','bl','br'].map(p => <CornerBracket key={p} pos={p} />)}
+
+      {/* ── TOP SECTION ── */}
+      <div style={{ position: 'relative', zIndex: 2, paddingTop: 0 }}>
+        {/* Gradient bar */}
+        <div style={{
+          height: 6,
+          background: 'linear-gradient(90deg, #E10600 0%, #FF6B00 40%, transparent 80%)',
+        }} />
+
+        {/* Race name block */}
+        <div style={{
+          textAlign: 'center', paddingTop: 22, paddingBottom: 14,
+          paddingLeft: 80, paddingRight: 80,
+        }}>
+          <div style={{
+            fontSize: 46, fontWeight: 900, color: '#fff',
+            textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.1,
+          }}>{raceName}</div>
+          <div style={{
+            fontSize: 16, color: '#555', letterSpacing: '0.18em',
+            textTransform: 'uppercase', marginTop: 6, fontWeight: 600,
+          }}>{year} · {round}</div>
+        </div>
+      </div>
+
+      {/* ── MIDDLE — PODIUM ── */}
+      <div style={{
+        flex: 1, zIndex: 2, position: 'relative',
+        display: 'flex', gap: 0,
+        padding: '0 8px',
+      }}>
+        <PodiumCol driver={d2} isWinner={false} driverImage={driverImages[d2.code]} />
+        <PodiumCol driver={d1} isWinner={true}  driverImage={driverImages[d1.code]} />
+        <PodiumCol driver={d3} isWinner={false} driverImage={driverImages[d3.code]} />
+      </div>
+
+      {/* ── DIVIDER ── */}
+      <div style={{
+        height: 1, zIndex: 2, position: 'relative',
+        background: 'linear-gradient(90deg, transparent, #333 30%, #333 70%, transparent)',
+        margin: '0 16px',
+      }} />
+
+      {/* ── BOTTOM STRIP ── */}
+      <div style={{
+        height: 110, zIndex: 2, position: 'relative',
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 28px',
+      }}>
+        {/* Fastest Lap */}
+        <div>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: '#7C3AED20',
+            border: '1px solid #7C3AED',
+            borderRadius: 20, padding: '7px 16px',
+            marginBottom: 8,
+          }}>
+            <span style={{ fontSize: 13, color: '#a78bfa', fontWeight: 800,
+              letterSpacing: '0.1em', textTransform: 'uppercase' }}>⚡ FASTEST LAP</span>
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>
+            {fastestLap?.driver}
+            <span style={{ color: '#666', fontWeight: 400, fontSize: 16 }}> — {fastestLap?.time}</span>
+          </div>
+        </div>
+
+        {/* Branding */}
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff',
+            letterSpacing: '-0.01em' }}>🏎 pitwall.ai</div>
+          <div style={{ fontSize: 13, color: '#444', letterSpacing: '0.12em',
+            textTransform: 'uppercase', marginTop: 2 }}>Race Intelligence</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Flag code mapping ─────────────────────────────────────────────────────────
+const DRIVER_FLAG_CODES = {
+  VER: 'nl', NOR: 'gb', LEC: 'mc', SAI: 'es', HAM: 'gb',
+  RUS: 'gb', PIA: 'au', ALO: 'es', STR: 'ca', GAS: 'fr',
+  OCO: 'fr', ALB: 'th', TSU: 'jp', RIC: 'au',
+  MAG: 'dk', HUL: 'de', BOT: 'fi', ZHO: 'cn', LAW: 'nz',
+  BEA: 'au', DOO: 'au', ANT: 'gb', HAD: 'fr', BOR: 'fr',
+  COL: 'ar',
+};
