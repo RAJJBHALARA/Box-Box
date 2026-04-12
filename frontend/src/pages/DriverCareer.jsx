@@ -1132,20 +1132,105 @@ function CompareModal({ currentDriver, currentData, onClose }) {
         {/* Drivers VS section */}
         <div className="compare-drivers-row" style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', alignItems: 'center', justifyContent: 'center' }}>
           <DriverAvatar driver={currentDriver} data={currentData} />
-
           <span className="compare-vs-label" style={{ fontFamily: 'Space Grotesk', fontSize: 16, color: '#555', fontWeight: 700 }}>VS</span>
-
-          {/* Driver B selector / avatar */}
           {compareDriver && compareData ? (
             <DriverAvatar driver={compareDriver} data={compareData} />
           ) : (
-            <CompareDriverSelector drivers={otherDrivers} onSelect={loadCompareData} />
+            <div style={{ textAlign: 'center' }}>
+              <motion.div
+                className="driver-avatar-card"
+                animate={{ borderColor: ['rgba(255,255,255,0.15)', 'rgba(225,6,0,0.3)', 'rgba(255,255,255,0.15)'] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                style={{
+                  width: 80, height: 80, borderRadius: 12,
+                  border: '2px dashed rgba(255,255,255,0.15)',
+                  background: 'rgba(255,255,255,0.03)',
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: 2,
+                }}
+              >
+                <span style={{ fontSize: 20, color: '#444', lineHeight: 1 }}>?</span>
+                <span style={{ fontFamily: 'Space Grotesk', fontSize: 7, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Choose<br />Below
+                </span>
+              </motion.div>
+              <p className="driver-avatar-name" style={{ fontFamily: 'Space Grotesk', fontSize: 13, fontWeight: 700, color: '#444', margin: '6px 0 0', textTransform: 'uppercase' }}>
+                Driver 2
+              </p>
+              <p className="driver-avatar-code" style={{ fontFamily: 'Space Grotesk', fontSize: 10, color: '#333', margin: 0 }}>
+                — | #—
+              </p>
+            </div>
           )}
         </div>
+
+        {/* Inline Driver Picker Grid — lives in modal body flow */}
+        {!compareData && !loading && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 14,
+              padding: '16px',
+              marginBottom: '1rem',
+            }}
+          >
+            <p style={{
+              fontFamily: 'Space Grotesk', fontSize: 11, color: '#888',
+              textTransform: 'uppercase', letterSpacing: '0.12em',
+              margin: '0 0 12px', textAlign: 'center', fontWeight: 600,
+            }}>
+              👇 Select a driver to compare
+            </p>
+
+            {/* Current Grid */}
+            <p style={{
+              fontFamily: 'Space Grotesk', fontSize: 10, color: '#555',
+              textTransform: 'uppercase', letterSpacing: '0.15em',
+              margin: '0 0 8px', fontWeight: 700,
+            }}>
+              Current Grid
+            </p>
+            <div className="compare-driver-grid" style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 10, marginBottom: 16,
+            }}>
+              {otherDrivers.filter(d => d.group === 'current').map((driver, i) => (
+                <DriverChipButton key={driver.id} driver={driver} delay={i * 0.03} onSelect={loadCompareData} />
+              ))}
+            </div>
+
+            {/* Legends */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 }} />
+            <p style={{
+              fontFamily: 'Space Grotesk', fontSize: 10, color: '#555',
+              textTransform: 'uppercase', letterSpacing: '0.15em',
+              margin: '0 0 8px', fontWeight: 700,
+            }}>
+              Legends
+            </p>
+            <div className="compare-driver-grid" style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 10,
+            }}>
+              {otherDrivers.filter(d => d.group === 'legend').map((driver, i) => (
+                <DriverChipButton key={driver.id} driver={driver} delay={0.15 + i * 0.03} onSelect={loadCompareData} isLegend />
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Loading */}
         {loading && (
           <div style={{ textAlign: 'center', padding: '2rem', color: '#888', fontFamily: 'Space Grotesk' }}>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+              style={{ width: 24, height: 24, border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#e10600', borderRadius: '50%', margin: '0 auto 12px' }}
+            />
             Loading career data...
           </div>
         )}
@@ -1244,8 +1329,18 @@ function CompareModal({ currentDriver, currentData, onClose }) {
           </div>
         )}
 
-        {/* Mobile styles for compare modal */}
+        {/* Responsive styles for compare modal */}
         <style>{`
+          @media (max-width: 600px) {
+            .compare-driver-grid {
+              grid-template-columns: repeat(3, 1fr) !important;
+              gap: 8px !important;
+            }
+            .chip-photo {
+              width: 38px !important;
+              height: 38px !important;
+            }
+          }
           @media (max-width: 480px) {
             .compare-modal-inner {
               padding: 1.25rem !important;
@@ -1267,14 +1362,18 @@ function CompareModal({ currentDriver, currentData, onClose }) {
             .driver-avatar-code {
               font-size: 9px !important;
             }
-            .compare-select-trigger {
-              width: 68px !important;
-              height: 68px !important;
+            .compare-driver-grid {
+              grid-template-columns: repeat(3, 1fr) !important;
+              gap: 6px !important;
             }
-            .compare-select-trigger .plus-icon {
-              font-size: 18px !important;
+            .chip-photo {
+              width: 34px !important;
+              height: 34px !important;
             }
-            .compare-select-trigger .select-label {
+            .chip-name {
+              font-size: 9px !important;
+            }
+            .chip-code {
               font-size: 7px !important;
             }
           }
@@ -1285,9 +1384,115 @@ function CompareModal({ currentDriver, currentData, onClose }) {
 }
 
 
+// ── Legend Monogram Fallback — premium look for drivers with no photo ──
+function LegendMonogram({ code, teamColor }) {
+  return (
+    <div style={{
+      width: '100%', height: '100%',
+      background: `linear-gradient(135deg, ${teamColor}30, ${teamColor}10)`,
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      position: 'relative',
+    }}>
+      <div style={{
+        position: 'absolute', top: 4,
+        background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+        color: '#000', fontSize: 6, fontWeight: 800,
+        padding: '1px 4px', borderRadius: 3,
+        letterSpacing: '0.1em', fontFamily: 'Space Grotesk',
+      }}>LEGEND</div>
+      <div style={{
+        fontSize: 22, fontWeight: 900,
+        color: 'transparent',
+        WebkitTextStroke: `1.5px ${teamColor}`,
+        letterSpacing: '0.05em', fontStyle: 'italic',
+        fontFamily: 'Space Grotesk', lineHeight: 1,
+        marginTop: 4,
+      }}>{code}</div>
+    </div>
+  );
+}
+
+
+// ── Driver Chip Button for Picker Grid ──
+function DriverChipButton({ driver, delay, onSelect, isLegend }) {
+  const img = getDriverImage(driver.code);
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay, duration: 0.2 }}
+      whileHover={{ scale: 1.08, y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => onSelect(driver)}
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: `1.5px solid ${driver.teamColor}30`,
+        borderRadius: 12,
+        padding: '10px 6px 8px',
+        cursor: 'pointer',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', gap: 6,
+        transition: 'border-color 0.2s, background 0.2s',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = driver.teamColor;
+        e.currentTarget.style.background = `${driver.teamColor}12`;
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = `${driver.teamColor}30`;
+        e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+      }}
+    >
+      <div className="chip-photo" style={{
+        width: 44, height: 44, borderRadius: 10,
+        overflow: 'hidden',
+        border: `2px solid ${driver.teamColor}50`,
+        background: `${driver.teamColor}10`,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+      }}>
+        {img && !imgError ? (
+          <img
+            src={img} alt={driver.name}
+            style={{ width: '100%', objectFit: 'cover' }}
+            onError={() => setImgError(true)}
+          />
+        ) : isLegend ? (
+          <LegendMonogram code={driver.code} teamColor={driver.teamColor} />
+        ) : (
+          <span style={{ fontFamily: 'Space Grotesk', fontSize: 14, fontWeight: 800, color: driver.teamColor, paddingBottom: 8 }}>
+            {driver.code}
+          </span>
+        )}
+      </div>
+      <span className="chip-name" style={{
+        fontFamily: 'Space Grotesk', fontSize: 10, fontWeight: 600,
+        color: '#ccc', textAlign: 'center', lineHeight: 1.2,
+        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        maxWidth: '100%',
+      }}>
+        {driver.name.split(' ').pop()}
+      </span>
+      <span className="chip-code" style={{
+        fontFamily: 'Space Grotesk', fontSize: 8, fontWeight: 700,
+        color: driver.teamColor, background: `${driver.teamColor}15`,
+        padding: '2px 6px', borderRadius: 4, letterSpacing: '0.05em',
+      }}>
+        {driver.code}
+      </span>
+    </motion.button>
+  );
+}
+
+
 function DriverAvatar({ driver, data }) {
   const img = getDriverImage(driver.code);
   const tc = driver.teamColor;
+  const [imgError, setImgError] = useState(false);
+  const isLegend = driver.group === 'legend';
+
   return (
     <div style={{ textAlign: 'center' }}>
       <div className="driver-avatar-card" style={{
@@ -1297,8 +1502,14 @@ function DriverAvatar({ driver, data }) {
         background: `${tc}15`,
         display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
       }}>
-        {img ? (
-          <img src={img} alt={driver.name} style={{ width: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+        {img && !imgError ? (
+          <img
+            src={img} alt={driver.name}
+            style={{ width: '100%', objectFit: 'cover' }}
+            onError={() => setImgError(true)}
+          />
+        ) : isLegend ? (
+          <LegendMonogram code={driver.code} teamColor={tc} />
         ) : (
           <span style={{ fontFamily: 'Space Grotesk', fontSize: 24, fontWeight: 800, color: tc, paddingBottom: 16 }}>
             {driver.code}
@@ -1311,147 +1522,6 @@ function DriverAvatar({ driver, data }) {
       <p className="driver-avatar-code" style={{ fontFamily: 'Space Grotesk', fontSize: 10, color: tc, margin: 0 }}>
         {driver.code} | #{data?.driver_info?.permanentNumber || '—'}
       </p>
-    </div>
-  );
-}
-
-
-// ── Custom Dropdown for Compare Modal ──
-function CompareDriverSelector({ drivers, onSelect }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setIsOpen(false);
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
-  const currentDrivers = drivers.filter(d => d.group === 'current');
-  const legendDrivers = drivers.filter(d => d.group === 'legend');
-
-  const renderOption = (d, showBadge) => (
-    <button
-      key={d.id}
-      onClick={() => { onSelect(d); setIsOpen(false); }}
-      style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-        padding: '10px 12px', background: 'transparent',
-        border: 'none', borderLeft: '2px solid transparent',
-        color: 'white',
-        fontFamily: 'Space Grotesk', fontSize: 13, fontWeight: 500,
-        cursor: 'pointer', textAlign: 'left',
-        transition: 'all 0.15s',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-        e.currentTarget.style.borderLeftColor = '#e10600';
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.background = 'transparent';
-        e.currentTarget.style.borderLeftColor = 'transparent';
-      }}
-    >
-      <div style={{ width: 8, height: 8, borderRadius: '50%', background: d.teamColor, flexShrink: 0, boxShadow: `0 0 6px ${d.teamColor}60` }} />
-      <span style={{ flex: 1 }}>{d.name}</span>
-      <span style={{ fontSize: 10, color: '#555', fontWeight: 600, letterSpacing: '0.05em' }}>{d.code}</span>
-    </button>
-  );
-
-  return (
-    <div style={{ position: 'relative', textAlign: 'center' }} ref={ref}>
-      {/* Trigger — matches DriverAvatar sizing */}
-      <button
-        className="compare-select-trigger"
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          width: 80, height: 80, borderRadius: 12,
-          border: isOpen ? '2px dashed #e10600' : '2px dashed rgba(255,255,255,0.2)',
-          background: isOpen ? 'rgba(225, 6, 0, 0.08)' : 'rgba(255,255,255,0.05)',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', gap: 2,
-          transition: 'all 0.25s ease',
-        }}
-        onMouseEnter={e => {
-          if (!isOpen) {
-            e.currentTarget.style.borderColor = '#e10600';
-            e.currentTarget.style.background = 'rgba(225, 6, 0, 0.08)';
-          }
-        }}
-        onMouseLeave={e => {
-          if (!isOpen) {
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-            e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-          }
-        }}
-      >
-        <span className="plus-icon" style={{ fontSize: 22, color: isOpen ? '#e10600' : '#666', transition: 'color 0.2s', lineHeight: 1 }}>+</span>
-        <span className="select-label" style={{ fontFamily: 'Space Grotesk', fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1.2 }}>
-          Select<br />Driver
-        </span>
-      </button>
-      {/* Text below to match DriverAvatar layout */}
-      <p style={{ fontFamily: 'Space Grotesk', fontSize: 13, fontWeight: 700, color: '#444', margin: '6px 0 0', textTransform: 'uppercase' }}>
-        Driver 2
-      </p>
-      <p style={{ fontFamily: 'Space Grotesk', fontSize: 10, color: '#333', margin: 0 }}>
-        — | #—
-      </p>
-
-      {/* Dropdown list — opens UPWARD */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scaleY: 0.9, y: 8 }}
-            animate={{ opacity: 1, scaleY: 1, y: 0 }}
-            exit={{ opacity: 0, scaleY: 0.9, y: 8 }}
-            transition={{ duration: 0.15 }}
-            style={{
-              position: 'absolute',
-              bottom: '100%',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              transformOrigin: 'bottom',
-              marginBottom: 8,
-              width: 240,
-              background: 'rgba(15, 15, 15, 0.98)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 12,
-              zIndex: 99999,
-              boxShadow: '0 -8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(255,255,255,0.1)',
-              maxHeight: 280,
-              overflowY: 'auto',
-              overflowX: 'hidden',
-            }}
-          >
-            {/* Current Grid header */}
-            <div style={{
-              padding: '10px 12px 4px', fontSize: 10, color: '#666',
-              fontFamily: 'Space Grotesk', letterSpacing: '0.15em',
-              textTransform: 'uppercase', fontWeight: 700,
-            }}>
-              Current Grid
-            </div>
-            {currentDrivers.map(d => renderOption(d, false))}
-
-            {/* Legends header */}
-            <div style={{
-              padding: '10px 12px 4px', fontSize: 10, color: '#666',
-              fontFamily: 'Space Grotesk', letterSpacing: '0.15em',
-              textTransform: 'uppercase', fontWeight: 700,
-              borderTop: '1px solid rgba(255,255,255,0.06)',
-              marginTop: 4,
-            }}>
-              Legends
-            </div>
-            {legendDrivers.map(d => renderOption(d, true))}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -1471,3 +1541,4 @@ function getNationalityFlag(nationality) {
   };
   return map[nationality] || 'un';
 }
+

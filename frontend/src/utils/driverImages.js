@@ -1,4 +1,5 @@
 export const DRIVER_IMAGES = {
+  // 2025 Current Grid
   VER: "https://media.formula1.com/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png",
   NOR: "https://media.formula1.com/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png",
   PIA: "https://media.formula1.com/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png",
@@ -21,6 +22,16 @@ export const DRIVER_IMAGES = {
   DOO: "https://media.formula1.com/content/dam/fom-website/drivers/J/JACDOO01_Jack_Doohan/jacdoo01.png",
   HAD: "https://media.formula1.com/content/dam/fom-website/drivers/I/ISAHAD01_Isack_Hadjar/isahad01.png",
   COL: "https://media.formula1.com/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png",
+
+  // F1 Legends
+  MSC: "https://media.formula1.com/content/dam/fom-website/drivers/M/MIKSCH01_Michael_Schumacher/miksch01.png",
+  VET: "https://media.formula1.com/content/dam/fom-website/drivers/S/SEBVET01_Sebastian_Vettel/sebvet01.png",
+  RAI: "https://media.formula1.com/content/dam/fom-website/drivers/K/KIMRAI01_Kimi_Raikkonen/kimrai01.png",
+  ROS: "https://media.formula1.com/content/dam/fom-website/drivers/N/NICROS01_Nico_Rosberg/nicros01.png",
+  BUT: "https://media.formula1.com/content/dam/fom-website/drivers/J/JENBUT01_Jenson_Button/jenbut01.png",
+  SEN: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Ayrton_Senna_1991_Canada.jpg/400px-Ayrton_Senna_1991_Canada.jpg",
+  PRO: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Alain_Prost_1990_Canada.jpg/400px-Alain_Prost_1990_Canada.jpg",
 };
 
 export const getDriverImage = (code) => DRIVER_IMAGES[code] || null;
+

@@ -10,6 +10,9 @@ export const CAREER_DRIVERS = [
   { id: 'alonso',        name: 'Fernando Alonso',     code: 'ALO', team: 'Aston Martin',     teamColor: '#229971', group: 'current' },
   { id: 'russell',       name: 'George Russell',      code: 'RUS', team: 'Mercedes',         teamColor: '#27F4D2', group: 'current' },
   { id: 'piastri',       name: 'Oscar Piastri',       code: 'PIA', team: 'McLaren',          teamColor: '#FF8000', group: 'current' },
+  { id: 'andrea_kimi_antonelli', name: 'Kimi Antonelli', code: 'ANT', team: 'Mercedes',      teamColor: '#27F4D2', group: 'current' },
+  { id: 'hadjar',        name: 'Isack Hadjar',        code: 'HAD', team: 'RB F1 Team',       teamColor: '#6692FF', group: 'current' },
+  { id: 'bearman',       name: 'Oliver Bearman',      code: 'BEA', team: 'Haas F1 Team',     teamColor: '#B6BABD', group: 'current' },
 
   // LEGENDS
   { id: 'michael_schumacher', name: 'Michael Schumacher', code: 'MSC', team: 'Ferrari',      teamColor: '#E8002D', group: 'legend' },
@@ -17,6 +20,8 @@ export const CAREER_DRIVERS = [
   { id: 'raikkonen',          name: 'Kimi Räikkönen',     code: 'RAI', team: 'Ferrari',       teamColor: '#E8002D', group: 'legend' },
   { id: 'rosberg',            name: 'Nico Rosberg',       code: 'ROS', team: 'Mercedes',      teamColor: '#27F4D2', group: 'legend' },
   { id: 'button',             name: 'Jenson Button',      code: 'BUT', team: 'McLaren',       teamColor: '#FF8000', group: 'legend' },
+  { id: 'prost',              name: 'Alain Prost',        code: 'PRO', team: 'Ferrari',        teamColor: '#E8002D', group: 'legend' },
+  { id: 'senna',              name: 'Ayrton Senna',       code: 'SEN', team: 'McLaren',        teamColor: '#FF8000', group: 'legend' },
 ];
 
 // Key career moments for timeline annotations
@@ -88,6 +93,21 @@ export const CAREER_MOMENTS = {
     '2006': 'First win at Hungary after 113 races of waiting',
     '2009': 'World Championship with Brawn GP — fairytale season',
     '2011': 'Stunning Canada victory from last place in the rain',
+  },
+  senna: {
+    '1984': 'Stunning Monaco debut in the rain — announces arrival',
+    '1988': 'First World Championship with McLaren — 8 wins',
+    '1990': 'Second World Championship — bitter Prost rivalry',
+    '1991': 'Third World Championship — dominant season',
+    '1993': 'Epic wet-weather masterclass at Donington Park',
+    '1994': 'Tragic weekend at Imola — lost at 34',
+  },
+  prost: {
+    '1985': 'First World Championship with McLaren',
+    '1986': 'Back-to-back titles — defeats Mansell at Adelaide',
+    '1988': 'Most points in season but loses title to Senna on countback',
+    '1989': 'Third World Championship — controversial Suzuka clash',
+    '1993': 'Fourth and final World Championship with Williams',
   },
 };
 
