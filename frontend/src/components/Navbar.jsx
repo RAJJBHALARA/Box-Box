@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Gauge, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModeToggle from './ModeToggle';
 
@@ -54,8 +54,22 @@ export default function Navbar() {
             transition={{ duration: 0.5 }}
             className="flex items-center gap-3"
           >
-            <Gauge className="text-[#e10600]" size={32} />
-            <span className="text-2xl font-bold tracking-tighter text-white font-['Space_Grotesk'] uppercase">PitWall AI</span>
+            <div style={{
+              width: 36,
+              height: 36,
+              background: 'linear-gradient(135deg, #e10600, #ff4422)',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18,
+              fontWeight: 900,
+              color: 'white',
+              fontFamily: "'Space Grotesk', sans-serif",
+              letterSpacing: '-0.05em',
+              flexShrink: 0,
+            }}>BB</div>
+            <span className="text-2xl font-bold tracking-tighter text-white font-['Space_Grotesk'] uppercase">BoxBox</span>
           </motion.div>
         </Link>
 

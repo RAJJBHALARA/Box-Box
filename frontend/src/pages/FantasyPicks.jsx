@@ -44,11 +44,11 @@ export default function FantasyPicks() {
     const teamLine = constructor ? constructor.name : 'N/A';
     const race = selectedRace || 'the next race';
     return encodeURIComponent(
-      `My PitWall AI picks for ${race} 🏎️\n` +
+      `My BoxBox picks for ${race} 🏎️\n` +
       `Drivers: ${driverLine}\n` +
       `Constructor: ${teamLine}\n` +
-      `Powered by @PitWallAI\n` +
-      `github.com/RAJJBHALARA/pitwall-ai\n` +
+      `Powered by @BoxBoxApp\n` +
+      `boxbox.vercel.app\n` +
       `#F1 #F1Fantasy #Formula1`
     );
   }
@@ -66,10 +66,10 @@ export default function FantasyPicks() {
     const driverLine = drivers.slice(0, 5).map(d => d.code || d.name).join(', ');
     const teamLine = constructor ? constructor.name : 'N/A';
     const text =
-      `My PitWall AI picks for ${selectedRace || 'the next race'} 🏎️\n` +
+      `My BoxBox picks for ${selectedRace || 'the next race'} 🏎️\n` +
       `Drivers: ${driverLine}\n` +
       `Constructor: ${teamLine}\n` +
-      `Powered by @PitWallAI | github.com/RAJJBHALARA/pitwall-ai\n` +
+      `Powered by @BoxBoxApp | boxbox.vercel.app\n` +
       `#F1 #F1Fantasy #Formula1`;
     navigator.clipboard.writeText(text).then(() => {
       setShareState('copied');

@@ -27,7 +27,7 @@ export default function EmailSignup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          source: 'pitwall-ai-home',
+          source: 'boxbox-home',
           timestamp: new Date().toISOString(),
         }),
       });
@@ -39,9 +39,9 @@ export default function EmailSignup() {
           try {
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
-              new Notification('PitWall AI 🏎️', {
+              new Notification('BoxBox 🏎️', {
                 body: 'Race weekend notifications enabled!',
-                icon: '/pitwall-icon.png',
+                icon: '/favicon.svg',
               });
             }
           } catch { /* ignore */ }
