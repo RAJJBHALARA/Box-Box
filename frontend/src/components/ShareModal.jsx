@@ -45,7 +45,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
 
       const link    = document.createElement('a');
       const safeName = (raceData.raceName || 'race').replace(/\s+/g, '-').toLowerCase();
-      link.download = `pitwall-${safeName}-${raceData.year || '2026'}.png`;
+      link.download = `boxbox-${safeName}-${raceData.year || '2026'}.png`;
       link.href     = canvas.toDataURL('image/png');
       link.click();
     } catch (err) {
@@ -65,7 +65,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
       `🥈 ${p2?.name} — ${p2?.team}\n` +
       `🥉 ${p3?.name} — ${p3?.team}\n\n` +
       `⚡ Fastest Lap: ${fastestLap?.driver} · ${fastestLap?.time}\n\n` +
-      `Analysed with @PitWallAI 🏎️\n` +
+      `Analysed with @BoxBoxApp 🏎️\n` +
       `#F1 #Formula1 #${noSpaces}GP`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank', 'width=560,height=440');

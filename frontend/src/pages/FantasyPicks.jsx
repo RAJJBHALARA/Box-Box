@@ -370,15 +370,12 @@ export default function FantasyPicks() {
                        }}
                        className="group overflow-hidden hover:border-[#e10600]/30 transition-colors"
                      >
-                       <div
-                         style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '16px 16px 0 0' }}
-                         className="relative h-48 overflow-hidden flex items-center justify-center"
-                       >
+                        <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '16px 16px 0 0', height: 260 }} className="relative overflow-hidden">
                           <DriverImage
                             code={driver.code}
                             name={driver.name}
-                            size={192}
-                            className="absolute bottom-0 left-1/2 -translate-x-1/2 transition-transform duration-700 group-hover:scale-110"
+                            fill={true}
+                            className="w-full h-full object-top object-contain transition-transform duration-700 group-hover:scale-110"
                           />
                           <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10">
                              <div className="flex items-center gap-1.5">

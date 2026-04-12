@@ -392,9 +392,9 @@ export default function ShareCard({ raceData, format = 'square' }) {
         {/* Branding */}
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#fff',
-            letterSpacing: '-0.01em' }}>🏎 pitwall.ai</div>
+            letterSpacing: '-0.01em' }}>🏁 BoxBox</div>
           <div style={{ fontSize: 13, color: '#444', letterSpacing: '0.12em',
-            textTransform: 'uppercase', marginTop: 2 }}>Race Intelligence</div>
+            textTransform: 'uppercase', marginTop: 2 }}>F1 Intelligence Hub</div>
         </div>
       </div>
     </div>

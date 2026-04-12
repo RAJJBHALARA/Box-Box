@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { getDriverImage } from '../utils/driverImages';
 
-const DriverImage = ({ code, name, size = 120, className = '' }) => {
+const DriverImage = ({ code, name, size = 120, className = '', fill = false }) => {
   const [imgError, setImgError] = useState(false);
   const imageUrl = getDriverImage(code);
+
+  const sharedStyle = fill
+    ? { width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'top center' }
+    : { width: size, height: size * 1.3, objectFit: 'contain', objectPosition: 'top center' };
 
   if (!imageUrl || imgError) {
     return (
       <div
         style={{
-          width: size,
-          height: size * 1.2,
+          ...(fill
+            ? { width: '100%', height: '100%' }
+            : { width: size, height: size * 1.3 }),
           background: 'linear-gradient(135deg, #1a1a1a, #2a2a2a)',
           display: 'flex',
           alignItems: 'center',
@@ -34,13 +39,7 @@ const DriverImage = ({ code, name, size = 120, className = '' }) => {
       src={imageUrl}
       alt={name || code}
       onError={() => setImgError(true)}
-      style={{
-        width: size,
-        height: size * 1.2,
-        objectFit: 'cover',
-        objectPosition: 'top center',
-        borderRadius: 8,
-      }}
+      style={sharedStyle}
       className={className}
     />
   );
