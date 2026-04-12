@@ -2,6 +2,11 @@
 
 > Your AI-powered Formula 1 race analysis and fantasy picks dashboard.
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-E10600?style=for-the-badge)](https://pitwall-ai.vercel.app)
+
+## 🌐 Live Demo
+**[pitwall-ai.vercel.app](https://pitwall-ai.vercel.app)**
+
 ![PitWall AI](./screenshots/home.png)
 
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev)
@@ -23,6 +28,12 @@
 - 🤖 **Fantasy Picks** — AI-powered weekly team recommendations based on real telemetry data and recent driver form, powered by **Google Gemini 1.5 Pro**
 
 - 🔬 **Lap Explainer** — Enter any driver + lap number and get a plain-English AI breakdown of exactly what happened on track — corner by corner
+
+- 🏆 **Driver Career Timeline** — Deep-dive career stats, interactive timelines, and head-to-head legend comparisons with AI verdicts
+
+- 📊 **Standings** — Live championship standings with shareable podium cards
+
+- 📧 **Race Weekend Alerts** — Smart banner that activates during F1 race weekends with live session tracking and countdown timers
 
 - 🎨 **Premium UI** — Kinetic dark-mode dashboard with Framer Motion animations, count-up telemetry stats, typewriter AI reveals, and skeleton loading states
 
@@ -68,7 +79,7 @@
 | Service | Purpose |
 |:--------|:--------|
 | **Vercel** | Frontend hosting |
-| **Google Cloud Run** | Backend containerized deployment |
+| **Render** | Backend API hosting |
 
 ---
 
