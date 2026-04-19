@@ -13,6 +13,7 @@ const FEATURES = [
 
 export default function WelcomeTutorial({ onStartTour, onSkip }) {
   const { isBeginnerMode } = useMode();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -124,11 +125,13 @@ export default function WelcomeTutorial({ onStartTour, onSkip }) {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 + i * 0.08 }}
-                      whileHover={{
-                        scale: 1.03,
-                        borderColor: '#F59E0B',
-                        transition: { duration: 0.15 },
-                      }}
+                      {...(!isMobile && {
+                        whileHover: {
+                          scale: 1.03,
+                          borderColor: '#F59E0B',
+                          transition: { duration: 0.15 },
+                        }
+                      })}
                       className="flex items-center gap-3 p-3.5 rounded-xl border border-white/5 transition-colors"
                       style={{ background: '#222' }}
                     >
@@ -146,7 +149,7 @@ export default function WelcomeTutorial({ onStartTour, onSkip }) {
                 {/* Buttons */}
                 <motion.button
                   onClick={handleStart}
-                  whileHover={{ scale: 1.04 }}
+                  {...(!isMobile && { whileHover: { scale: 1.04 } })}
                   whileTap={{ scale: 0.97 }}
                   className="tutorial-shimmer-btn w-full py-3.5 rounded-xl font-['Space_Grotesk'] font-bold text-sm uppercase tracking-widest text-black flex items-center justify-center gap-2 mb-3"
                 >

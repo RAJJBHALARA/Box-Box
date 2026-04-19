@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 
 export default function MobileBottomNav() {
   const [isVisible, setIsVisible] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -22,12 +23,20 @@ export default function MobileBottomNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handler = (e) => setMenuOpen(e.detail.open);
+    window.addEventListener('mobileMenuToggle', handler);
+    return () => window.removeEventListener('mobileMenuToggle', handler);
+  }, []);
+
   const navItems = [
     { label: 'Home', path: '/', icon: Home },
     { label: 'Race', path: '/race-analysis', icon: BarChart2 },
     { label: 'Rival', path: '/rivalry-tracker', icon: Swords },
     { label: 'Career', path: '/career', icon: Trophy },
   ];
+
+  if (menuOpen) return null;
 
   return (
     <AnimatePresence>

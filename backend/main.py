@@ -170,6 +170,8 @@ async def fetch_fantasy_picks_api(request: Request, req: FantasyPicksReq):
         form_data = form_data_response["form_data"]
         # Run AI picks generation in a thread  
         picks = await asyncio.to_thread(get_fantasy_picks, req.race, form_data)
+        picks["form_data"] = form_data
+        picks["source"] = form_data_response.get("source", "")
         return picks
     except Exception as e:
         print(f"[Fantasy Error] {e}")
@@ -179,7 +181,9 @@ async def fetch_fantasy_picks_api(request: Request, req: FantasyPicksReq):
             "drivers": [],
             "constructor": {"name": "Unknown", "reasoning": ""},
             "key_insight": "Analysis temporarily unavailable.",
-            "drivers_to_avoid": []
+            "drivers_to_avoid": [],
+            "form_data": {},
+            "source": ""
         }
 
 
@@ -358,4 +362,3 @@ async def fetch_career_compare(request: Request, req: CareerCompareReq):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Career comparison failed: {str(e)}")
-

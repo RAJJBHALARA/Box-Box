@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image-more';
 import ShareCard from './ShareCard';
-import { X, Download, Share2, Loader2 } from 'lucide-react';
+import { X, Download, Loader2 } from 'lucide-react';
 
 // ── Twitter / X logo SVG ──────────────────────────────────────────────────────
 const XLogo = () => (
@@ -30,26 +30,39 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
   const downloadCard = async () => {
     setGenerating(true);
     try {
-      const element = document.getElementById('share-card');
-      if (!element) return;
+      const node = document.getElementById('share-card');
+      if (!node) return;
 
-      const canvas = await html2canvas(element, {
+      const blob = await domtoimage.toBlob(node, {
+        quality: 1,
         scale: 2,
-        backgroundColor: '#080808',
         useCORS: true,
         allowTaint: false,
-        logging: false,
-        width:  1080,
-        height: format === 'portrait' ? 1350 : 1080,
       });
 
-      const link    = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
       const safeName = (raceData.raceName || 'race').replace(/\s+/g, '-').toLowerCase();
       link.download = `boxbox-${safeName}-${raceData.year || '2026'}.png`;
-      link.href     = canvas.toDataURL('image/png');
+      link.href = url;
+      link.style.display = 'none';
+      document.body.appendChild(link);
       link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 1000);
     } catch (err) {
-      console.error('html2canvas error:', err);
+      console.error('Download failed:', err);
+      try {
+        const dataUrl = await domtoimage.toPng(
+          document.getElementById('share-card'),
+          { scale: 2 }
+        );
+        window.open(dataUrl, '_blank');
+      } catch (fallbackError) {
+        alert('Download failed. Try on desktop.');
+      }
     } finally {
       setGenerating(false);
     }
@@ -66,6 +79,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
       `🥉 ${p3?.name} — ${p3?.team}\n\n` +
       `⚡ Fastest Lap: ${fastestLap?.driver} · ${fastestLap?.time}\n\n` +
       `Analysed with @BoxBoxApp 🏎️\n` +
+      `boxbox.app\n` +
       `#F1 #Formula1 #${noSpaces}GP`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank', 'width=560,height=440');
@@ -159,7 +173,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
             color: '#000',
             height: isMobile ? 52 : 44,
           }}
-          whileHover={!isGenerating ? { scale: 1.02 } : {}}
+          {...(isMobile ? {} : { whileHover: !isGenerating ? { scale: 1.02 } : {} })}
           whileTap={!isGenerating ? { scale: 0.97 } : {}}
         >
           {isGenerating
@@ -178,7 +192,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: 12,
           }}
-          whileHover={{ scale: 1.02 }}
+          {...(!isMobile && { whileHover: { scale: 1.02 } })}
           whileTap={{ scale: 0.97 }}
         >
           <XLogo /> Share on X

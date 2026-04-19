@@ -7,6 +7,7 @@ import ModeToggle from './ModeToggle';
 export default function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -17,6 +18,11 @@ export default function Navbar() {
     return () => {
       document.body.style.overflow = 'unset';
     };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(new CustomEvent('mobileMenuToggle', { detail: { open: mobileMenuOpen } }));
   }, [mobileMenuOpen]);
 
   const links = [
@@ -83,7 +89,7 @@ export default function Navbar() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.3 }}
-                whileHover={{ y: -2 }}
+                {...(!isMobile && { whileHover: { y: -2 } })}
                 data-nav={link.navId}
               >
                 <Link

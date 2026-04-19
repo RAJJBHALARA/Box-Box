@@ -12,6 +12,7 @@ const FEATURE_PILLS = [
 ];
 
 export default function EmailSignup() {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [focused, setFocused] = useState(false);
@@ -243,7 +244,7 @@ export default function EmailSignup() {
                   <motion.button
                     type="submit"
                     disabled={status === 'loading' || !email}
-                    whileHover={{ scale: 1.02 }}
+                    {...(!isMobile && { whileHover: { scale: 1.02 } })}
                     whileTap={{ scale: 0.97 }}
                     style={{
                       fontFamily: "'Space Grotesk', sans-serif",

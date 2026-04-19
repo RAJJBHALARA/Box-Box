@@ -1,15 +1,16 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import Layout from './components/Layout';
 import BackendWakeup from './components/BackendWakeup';
-import Home from './pages/Home';
-import RaceAnalysis from './pages/RaceAnalysis';
-import RivalryTracker from './pages/RivalryTracker';
-import FantasyPicks from './pages/FantasyPicks';
-import LapExplainer from './pages/LapExplainer';
-import Standings from './pages/Standings';
-import DriverCareer from './pages/DriverCareer';
+
+const Home = lazy(() => import('./pages/Home'));
+const RaceAnalysis = lazy(() => import('./pages/RaceAnalysis'));
+const RivalryTracker = lazy(() => import('./pages/RivalryTracker'));
+const FantasyPicks = lazy(() => import('./pages/FantasyPicks'));
+const LapExplainer = lazy(() => import('./pages/LapExplainer'));
+const Standings = lazy(() => import('./pages/Standings'));
+const DriverCareer = lazy(() => import('./pages/DriverCareer'));
 
 function App() {
   const location = useLocation();
@@ -22,17 +23,28 @@ function App() {
     <>
       <BackendWakeup />
       <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="race-analysis" element={<RaceAnalysis />} />
-            <Route path="rivalry-tracker" element={<RivalryTracker />} />
-            <Route path="fantasy-picks" element={<FantasyPicks />} />
-            <Route path="lap-explainer" element={<LapExplainer />} />
-            <Route path="standings" element={<Standings />} />
-            <Route path="career" element={<DriverCareer />} />
-          </Route>
-        </Routes>
+        <Suspense fallback={
+          <div style={{
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#E10600',
+            fontSize: 14
+          }}>Loading...</div>
+        }>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="race-analysis" element={<RaceAnalysis />} />
+              <Route path="rivalry-tracker" element={<RivalryTracker />} />
+              <Route path="fantasy-picks" element={<FantasyPicks />} />
+              <Route path="lap-explainer" element={<LapExplainer />} />
+              <Route path="standings" element={<Standings />} />
+              <Route path="career" element={<DriverCareer />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </AnimatePresence>
     </>
   );

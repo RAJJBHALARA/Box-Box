@@ -483,6 +483,7 @@ function DriverOption({ driver, selected, onClick }) {
 // ══════════════════════════════════════════════
 
 function HeroSection({ data, driver, animated, onCompare, onGoatToast }) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const totals = data.totals;
   const driverInfo = data.driver_info;
   const teamHistory = data.team_history || [];
@@ -608,7 +609,7 @@ function HeroSection({ data, driver, animated, onCompare, onGoatToast }) {
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
-              whileHover={{ scale: 1.05, background: 'rgba(0, 200, 83, 0.25)' }}
+              {...(!isMobile && { whileHover: { scale: 1.05, background: 'rgba(0, 200, 83, 0.25)' } })}
               whileTap={{ scale: 0.95 }}
             >
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00c853', animation: 'pulse 2s infinite' }} />
@@ -631,6 +632,8 @@ function HeroSection({ data, driver, animated, onCompare, onGoatToast }) {
             <img
               src={`https://flagcdn.com/24x18/${getNationalityFlag(driverInfo.nationality)}.png`}
               alt={driverInfo.nationality}
+              loading="lazy"
+              decoding="async"
               style={{ width: 20, height: 15, borderRadius: 2 }}
               onError={(e) => e.target.style.display = 'none'}
             />
@@ -735,7 +738,7 @@ function HeroSection({ data, driver, animated, onCompare, onGoatToast }) {
                     cursor: 'default',
                     transition: 'background 0.2s',
                   }}
-                  whileHover={{ background: `${tc}40` }}
+                  {...(!isMobile && { whileHover: { background: `${tc}40` } })}
                 >
                   {th.team} {th.startYear}–{th.endYear.slice(-2)}
                 </motion.div>
@@ -791,6 +794,7 @@ function HeroSection({ data, driver, animated, onCompare, onGoatToast }) {
 // ══════════════════════════════════════════════
 
 function TimelineSection({ data, driver }) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const seasons = data.seasons;
   const sortedYears = Object.keys(seasons).sort((a, b) => b - a); // newest first
   const maxWins = Math.max(...sortedYears.map(y => seasons[y].wins), 1);
@@ -799,9 +803,9 @@ function TimelineSection({ data, driver }) {
     <div style={{ marginTop: '3rem', position: 'relative' }}>
       {/* Section Header */}
       <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
+        {...(isMobile
+          ? { initial: { opacity: 1 }, animate: { opacity: 1 } }
+          : { initial: { opacity: 0 }, whileInView: { opacity: 1 }, viewport: { once: true } })}
         style={{ textAlign: 'center', marginBottom: '2.5rem' }}
       >
         <p style={{ color: '#e10600', fontFamily: 'Space Grotesk', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 4 }}>
@@ -838,10 +842,14 @@ function TimelineSection({ data, driver }) {
           return (
             <motion.div
               key={year}
-              initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, delay: 0.05 }}
+              {...(isMobile
+                ? { initial: { opacity: 1, x: 0 }, animate: { opacity: 1, x: 0 } }
+                : {
+                    initial: { opacity: 0, x: isLeft ? -30 : 30 },
+                    whileInView: { opacity: 1, x: 0 },
+                    viewport: { once: true, margin: '-50px' }
+                  })}
+              transition={{ duration: isMobile ? 0.2 : 0.5, delay: isMobile ? 0 : 0.05 }}
               style={{
                 display: 'flex',
                 justifyContent: isLeft ? 'flex-end' : 'flex-start',
@@ -974,9 +982,9 @@ function TimelineSection({ data, driver }) {
 
       {/* Career Summary Bar */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        {...(isMobile
+          ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
+          : { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true } })}
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
@@ -1416,6 +1424,7 @@ function LegendMonogram({ code, teamColor }) {
 
 // ── Driver Chip Button for Picker Grid ──
 function DriverChipButton({ driver, delay, onSelect, isLegend }) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const img = getDriverImage(driver.code);
   const [imgError, setImgError] = useState(false);
 
@@ -1424,7 +1433,7 @@ function DriverChipButton({ driver, delay, onSelect, isLegend }) {
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay, duration: 0.2 }}
-      whileHover={{ scale: 1.08, y: -2 }}
+      {...(!isMobile && { whileHover: { scale: 1.08, y: -2 } })}
       whileTap={{ scale: 0.95 }}
       onClick={() => onSelect(driver)}
       style={{
@@ -1456,6 +1465,8 @@ function DriverChipButton({ driver, delay, onSelect, isLegend }) {
         {img && !imgError ? (
           <img
             src={img} alt={driver.name}
+            loading="lazy"
+            decoding="async"
             style={{ width: '100%', objectFit: 'cover' }}
             onError={() => setImgError(true)}
           />
@@ -1505,6 +1516,8 @@ function DriverAvatar({ driver, data }) {
         {img && !imgError ? (
           <img
             src={img} alt={driver.name}
+            loading="lazy"
+            decoding="async"
             style={{ width: '100%', objectFit: 'cover' }}
             onError={() => setImgError(true)}
           />
@@ -1541,4 +1554,3 @@ function getNationalityFlag(nationality) {
   };
   return map[nationality] || 'un';
 }
-

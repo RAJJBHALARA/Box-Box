@@ -38,6 +38,8 @@ const DriverImage = ({ code, name, size = 120, className = '', fill = false }) =
     <img
       src={imageUrl}
       alt={name || code}
+      loading="lazy"
+      decoding="async"
       onError={() => setImgError(true)}
       style={sharedStyle}
       className={className}

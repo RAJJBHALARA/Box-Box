@@ -54,7 +54,7 @@ function PodiumCard({ driver, rank, tab }) {
         <div className="flex items-center gap-2">
           {driverMeta && (
             <span className="flex items-center justify-center">
-              <img src={getFlagUrl(driver.code)} alt={driver.code} style={{ width: 24, height: 18, borderRadius: 2 }} />
+              <img src={getFlagUrl(driver.code)} alt={driver.code} loading="lazy" decoding="async" style={{ width: 24, height: 18, borderRadius: 2 }} />
             </span>
           )}
           <span className="font-['Space_Grotesk'] font-black text-white text-base leading-tight">
@@ -129,7 +129,7 @@ function StandingRow({ entry, index, leaderPoints, tab }) {
         <div className="flex items-center gap-1.5">
           {driverMeta && (
             <span className="flex items-center justify-center">
-              <img src={getFlagUrl(entry.code)} alt={entry.code} style={{ width: 24, height: 18, borderRadius: 2 }} />
+              <img src={getFlagUrl(entry.code)} alt={entry.code} loading="lazy" decoding="async" style={{ width: 24, height: 18, borderRadius: 2 }} />
             </span>
           )}
           <span className="font-['Space_Grotesk'] font-bold text-white text-sm truncate">
@@ -179,6 +179,7 @@ function StandingRow({ entry, index, leaderPoints, tab }) {
 }
 
 export default function Standings() {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const [activeTab, setActiveTab] = useState('drivers');
   const [driverData, setDriverData] = useState(null);
   const [constructorData, setConstructorData] = useState(null);
@@ -270,7 +271,7 @@ export default function Standings() {
                 <motion.button
                   onClick={() => setShareOpen(true)}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F59E0B]/60 text-[#F59E0B] font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest hover:bg-[#F59E0B] hover:text-black transition-all flex-shrink-0"
-                  whileHover={{ scale: 1.05 }}
+                  {...(!isMobile && { whileHover: { scale: 1.05 } })}
                   whileTap={{ scale: 0.95 }}
                 >
                   ↗ SHARE

@@ -1,49 +1,74 @@
 import axios from 'axios'
 
+const defaultHeaders = {
+  "X-API-Key": import.meta.env.VITE_API_KEY || "fallback_dev_key",
+  "Content-Type": "application/json"
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
-  timeout: 120000, 
-  headers: {
-    "X-API-Key": import.meta.env.VITE_API_KEY || "fallback_dev_key",
-    "Content-Type": "application/json"
-  }
+  timeout: 120000,
+  headers: defaultHeaders
 })
 
 let activeRequests = 0;
 let timeoutTimer = null;
 
-api.interceptors.request.use(config => {
+const startSlowRequestNotice = () => {
   activeRequests++;
-  if (activeRequests === 1) {
+  if (typeof window !== 'undefined' && activeRequests === 1) {
     timeoutTimer = setTimeout(() => {
       window.dispatchEvent(new CustomEvent('slow-api', { detail: true }));
     }, 5000);
   }
-  return config;
-});
+};
 
-api.interceptors.response.use(
-  res => {
-    activeRequests = Math.max(0, activeRequests - 1);
-    if (activeRequests === 0) {
-      clearTimeout(timeoutTimer);
-      window.dispatchEvent(new CustomEvent('slow-api', { detail: false }));
-    }
-    return res;
-  },
-  err => {
-    activeRequests = Math.max(0, activeRequests - 1);
-    if (activeRequests === 0) {
-      clearTimeout(timeoutTimer);
-      window.dispatchEvent(new CustomEvent('slow-api', { detail: false }));
-    }
-    const status = err.response?.status;
-    if (status === 429) throw new Error("RATE_LIMIT")
-    if (status === 403) throw new Error("AUTH_ERROR")
-    if (status === 404) throw new Error("NO_DATA")
-    throw new Error(err.response?.data?.detail || "SERVER_ERROR")
+const stopSlowRequestNotice = () => {
+  activeRequests = Math.max(0, activeRequests - 1);
+  if (typeof window !== 'undefined' && activeRequests === 0) {
+    clearTimeout(timeoutTimer);
+    window.dispatchEvent(new CustomEvent('slow-api', { detail: false }));
   }
-)
+};
+
+const toApiError = (err) => {
+  const status = err.response?.status;
+  const isTimeout = err.code === 'ECONNABORTED' || /timeout/i.test(err.message || '');
+
+  if (isTimeout) return new Error("REQUEST_TIMEOUT")
+  if (status === 429) return new Error("RATE_LIMIT")
+  if (status === 403) return new Error("AUTH_ERROR")
+  if (status === 404) return new Error("NO_DATA")
+  return new Error(err.response?.data?.detail || "SERVER_ERROR")
+}
+
+const attachInterceptors = (client) => {
+  client.interceptors.request.use(config => {
+    startSlowRequestNotice();
+    return config;
+  });
+
+  client.interceptors.response.use(
+    res => {
+      stopSlowRequestNotice();
+      return res;
+    },
+    err => {
+      stopSlowRequestNotice();
+      throw toApiError(err)
+    }
+  )
+}
+
+attachInterceptors(api)
+
+export const slowApi = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  timeout: 120000,
+  headers: defaultHeaders
+})
+
+attachInterceptors(slowApi)
 
 export const getAvailableRaces = (year) => 
   api.get(`/api/races?year=${year}`)
@@ -58,13 +83,13 @@ export const getTireStrategy = (year, race) =>
   api.get(`/api/tire-strategy?year=${year}&race=${race}`)
 
 export const getRivalryStats = (year, d1, d2) =>
-  api.get(`/api/rivalry?year=${year}&driver1=${d1}&driver2=${d2}`)
+  slowApi.get(`/api/rivalry?year=${year}&driver1=${d1}&driver2=${d2}`)
 
 export const getTelemetry = (year, race, driver, lap) =>
-  api.get(`/api/telemetry?year=${year}&race=${race}&driver=${driver}&lap=${lap}`)
+  slowApi.get(`/api/telemetry?year=${year}&race=${race}&driver=${driver}&lap=${lap}`)
 
 export const getFantasyPicks = (race, year) =>
-  api.post('/api/fantasy-picks', { race, year })
+  slowApi.post('/api/fantasy-picks', { race, year })
 
 export const getDriverStandings = (year) =>
   api.get(`/api/standings/drivers?year=${year}`)

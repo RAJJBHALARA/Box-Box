@@ -26,7 +26,7 @@ export const getShareTeamColor = (team = '') => {
   return map[team] || '#E10600';
 };
 
-// ── Base64 image loader (bypasses CORS for html2canvas) ───────────────────────
+// ── Base64 image loader (bypasses CORS for share card rendering) ──────────────
 async function fetchBase64(url) {
   try {
     const res = await fetch(url, { mode: 'cors' });
@@ -145,6 +145,8 @@ function PodiumCol({ driver, isWinner, driverImage }) {
           <img
             src={driverImage}
             alt={driver.name}
+            loading="lazy"
+            decoding="async"
             style={{
               position: 'absolute',
               bottom: imgBottom,
@@ -220,6 +222,8 @@ function PodiumCol({ driver, isWinner, driverImage }) {
           <img
             src={`https://flagcdn.com/w40/${DRIVER_FLAG_CODES[driver.code] || 'xx'}.png`}
             alt=""
+            loading="lazy"
+            decoding="async"
             style={{ width: 28, height: 21, borderRadius: 2, objectFit: 'cover' }}
             crossOrigin="anonymous"
           />
@@ -257,7 +261,7 @@ export default function ShareCard({ raceData, format = 'square' }) {
   const { raceName, round, year, p1, p2, p3, fastestLap } = raceData;
   const [driverImages, setDriverImages] = useState({});
 
-  // Load driver images as base64 to bypass CORS for html2canvas
+  // Load driver images as base64 to bypass CORS for share card rendering
   useEffect(() => {
     let cancelled = false;
     const loadImages = async () => {
@@ -394,7 +398,7 @@ export default function ShareCard({ raceData, format = 'square' }) {
           <div style={{ fontSize: 22, fontWeight: 800, color: '#fff',
             letterSpacing: '-0.01em' }}>🏁 BoxBox</div>
           <div style={{ fontSize: 13, color: '#444', letterSpacing: '0.12em',
-            textTransform: 'uppercase', marginTop: 2 }}>F1 Intelligence Hub</div>
+            textTransform: 'uppercase', marginTop: 2 }}>boxbox.app</div>
         </div>
       </div>
     </div>

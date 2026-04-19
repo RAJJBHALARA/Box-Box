@@ -97,7 +97,7 @@ function LastRaceCard({ dur }) {
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-base leading-none">
-                    <img src={getFlagUrl(p.code)} alt={p.code} style={{ width: 24, height: 18, borderRadius: 2, display: 'inline-block' }} />
+                    <img src={getFlagUrl(p.code)} alt={p.code} loading="lazy" decoding="async" style={{ width: 24, height: 18, borderRadius: 2, display: 'inline-block' }} />
                   </span>
                   <span
                     className="font-['Space_Grotesk'] font-black text-base text-white"
@@ -121,7 +121,7 @@ function LastRaceCard({ dur }) {
           <div className="w-2 h-2 rounded-full bg-[#a855f7]" />
           <span className="font-['Space_Grotesk'] text-[10px] text-[#666] uppercase tracking-widest">Fastest Lap</span>
           <span className="font-['Space_Grotesk'] font-bold text-xs text-[#a855f7]">
-            <img src={getFlagUrl(LAST_RACE.fastestLap.driver)} alt={LAST_RACE.fastestLap.driver} style={{ width: 24, height: 18, borderRadius: 2, display: 'inline-block', marginRight: 4, verticalAlign: 'text-bottom' }} />
+            <img src={getFlagUrl(LAST_RACE.fastestLap.driver)} alt={LAST_RACE.fastestLap.driver} loading="lazy" decoding="async" style={{ width: 24, height: 18, borderRadius: 2, display: 'inline-block', marginRight: 4, verticalAlign: 'text-bottom' }} />
             {LAST_RACE.fastestLap.driver} — {LAST_RACE.fastestLap.time}
           </span>
         </div>
@@ -136,7 +136,7 @@ function LastRaceCard({ dur }) {
               boxShadow: '0 4px 15px rgba(245, 158, 11, 0.1)',
             }}
             className="flex items-center gap-1.5 text-[#F59E0B] font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest hover:bg-[#F59E0B] hover:text-black transition-all"
-            whileHover={{ scale: 1.05 }}
+            {...(!isMobile && { whileHover: { scale: 1.05 } })}
             whileTap={{ scale: 0.95 }}
           >
             ↗ SHARE
@@ -197,6 +197,8 @@ export default function Home() {
               className="w-full h-full object-cover"
               alt="F1 car on track"
               src="https://images.unsplash.com/photo-1538332576228-eb5b4c4de6f5?q=80&w=2000&auto=format&fit=crop"
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/40 to-transparent"></div>
           </div>
@@ -410,7 +412,7 @@ export default function Home() {
                   <h2 className="text-4xl font-['Space_Grotesk'] font-bold text-white uppercase tracking-tight flex items-center gap-3">
                     {loading ? 'LOADING...' : (
                       <>
-                        <img src={getFlagUrl(leader.code)} alt={leader.code} style={{ width: 24, height: 18, borderRadius: 2, display: 'inline-block', marginRight: 8, verticalAlign: 'middle' }} />
+                        <img src={getFlagUrl(leader.code)} alt={leader.code} loading="lazy" decoding="async" style={{ width: 24, height: 18, borderRadius: 2, display: 'inline-block', marginRight: 8, verticalAlign: 'middle' }} />
                         {leader.name}
                       </>
                     )}
@@ -547,7 +549,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.15, duration: dur(0.5) }}
-                  whileHover={{ y: -5, borderColor: 'rgba(225,6,0,0.4)', transition: { duration: 0.2 } }}
+                  {...(!isMobile && { whileHover: { y: -5, borderColor: 'rgba(225,6,0,0.4)', transition: { duration: 0.2 } } })}
                 >
                   <Link
                     to={card.to}

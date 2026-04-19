@@ -160,7 +160,7 @@ export default function RivalryTracker() {
           </div>
           <div className="flex gap-4">
             <motion.button 
-              whileHover={{ scale: 1.1 }}
+              {...(!isMobile && { whileHover: { scale: 1.1 } })}
               whileTap={{ scale: 0.9 }}
               style={{
                 background: 'rgba(255,255,255,0.06)',
@@ -172,7 +172,7 @@ export default function RivalryTracker() {
               <Share2 className="w-5 h-5" />
             </motion.button>
             <motion.button 
-              whileHover={{ scale: 1.1 }}
+              {...(!isMobile && { whileHover: { scale: 1.1 } })}
               whileTap={{ scale: 0.9 }}
               className="w-12 h-12 flex items-center justify-center bg-[#e10600] rounded-full text-white shadow-[0_0_15px_rgba(225,6,0,0.4)] hover:bg-[#c00500] transition-colors"
             >
@@ -204,7 +204,7 @@ export default function RivalryTracker() {
             </div>
             <div className="absolute bottom-6 left-6 z-10">
               <div className="flex items-center gap-2 justify-start">
-                <img src={getFlagUrl(driver1)} alt={driver1} style={{ width: 36, height: 27, borderRadius: 2 }} />
+                <img src={getFlagUrl(driver1)} alt={driver1} loading="lazy" decoding="async" style={{ width: 36, height: 27, borderRadius: 2 }} />
                 <p className="font-['Space_Grotesk'] font-black text-5xl italic text-white tracking-tighter leading-none drop-shadow-lg">{driver1}</p>
               </div>
               <p className="font-body text-xs text-[#e9bcb5] uppercase tracking-[0.2em] mt-2 font-bold drop-shadow-md">Driver 1</p>
@@ -224,7 +224,7 @@ export default function RivalryTracker() {
             </div>
             <div className="absolute bottom-6 right-6 z-10 text-right">
               <div className="flex items-center gap-2 justify-end">
-                <img src={getFlagUrl(driver2)} alt={driver2} style={{ width: 36, height: 27, borderRadius: 2 }} />
+                <img src={getFlagUrl(driver2)} alt={driver2} loading="lazy" decoding="async" style={{ width: 36, height: 27, borderRadius: 2 }} />
                 <p className="font-['Space_Grotesk'] font-black text-5xl italic text-white tracking-tighter leading-none drop-shadow-lg">{driver2}</p>
               </div>
               <p className="font-body text-xs text-[#e9bcb5] uppercase tracking-[0.2em] mt-2 font-bold drop-shadow-md">Driver 2</p>

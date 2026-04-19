@@ -212,7 +212,7 @@ export default function SpotlightTour({ active, onComplete }) {
 
               <motion.button
                 onClick={handleNext}
-                whileHover={{ scale: 1.04 }}
+                {...(!isMobile && { whileHover: { scale: 1.04 } })}
                 whileTap={{ scale: 0.97 }}
                 className="tutorial-shimmer-btn w-full py-3 rounded-xl font-['Space_Grotesk'] font-bold text-sm uppercase tracking-widest text-black flex items-center justify-center gap-2"
               >
@@ -348,7 +348,7 @@ export default function SpotlightTour({ active, onComplete }) {
                   {/* Action button */}
                   <motion.button
                     onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                    whileHover={{ scale: 1.05 }}
+                    {...(!isMobile && { whileHover: { scale: 1.05 } })}
                     whileTap={{ scale: 0.95 }}
                     className="tutorial-shimmer-btn px-5 py-2 rounded-lg font-['Space_Grotesk'] font-bold text-xs uppercase tracking-widest text-black flex items-center gap-1.5"
                   >

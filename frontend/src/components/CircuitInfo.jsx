@@ -60,7 +60,7 @@ export default function CircuitInfo({ circuit, aiInsight }) {
         {/* Left Column Data */}
         <div className="flex flex-col justify-center space-y-6">
           <div className="flex items-center gap-3">
-             <img src={`https://flagcdn.com/24x18/${CIRCUIT_COUNTRY[circuit.circuitName] || 'un'}.png`} alt={circuit.circuitName} className="w-6 h-4 rounded-sm object-cover" />
+        <img src={`https://flagcdn.com/24x18/${CIRCUIT_COUNTRY[circuit.circuitName] || 'un'}.png`} alt={circuit.circuitName} loading="lazy" decoding="async" className="w-6 h-4 rounded-sm object-cover" />
              <h3 className="text-[#e10600] font-['Space_Grotesk'] font-bold text-sm uppercase tracking-widest">{circuit.gpName}</h3>
           </div>
           

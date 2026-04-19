@@ -142,7 +142,7 @@ export default function RaceAnalysis() {
             <motion.button
               onClick={() => setShareOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#F59E0B]/60 text-[#F59E0B] font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest hover:bg-[#F59E0B] hover:text-black transition-all"
-              whileHover={{ scale: 1.05 }}
+              {...(!isMobile && { whileHover: { scale: 1.05 } })}
               whileTap={{ scale: 0.95 }}
             >
               ↗ SHARE
@@ -216,14 +216,14 @@ export default function RaceAnalysis() {
               <div className="flex items-center gap-2">
                 <span className="w-4 h-1 bg-[#e10600]"></span>
                 <span className="flex items-center gap-1.5 text-xs font-['Space_Grotesk'] font-bold uppercase text-white">
-                  <img src={getFlagUrl(d1)} alt={d1} style={{ width: 16, height: 12, borderRadius: 1 }} />
+                  <img src={getFlagUrl(d1)} alt={d1} loading="lazy" decoding="async" style={{ width: 16, height: 12, borderRadius: 1 }} />
                   {d1}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-4 h-1 bg-white"></span>
                 <span className="flex items-center gap-1.5 text-xs font-['Space_Grotesk'] font-bold uppercase text-white">
-                  <img src={getFlagUrl(d2)} alt={d2} style={{ width: 16, height: 12, borderRadius: 1 }} />
+                  <img src={getFlagUrl(d2)} alt={d2} loading="lazy" decoding="async" style={{ width: 16, height: 12, borderRadius: 1 }} />
                   {d2}
                 </span>
               </div>
@@ -311,7 +311,7 @@ export default function RaceAnalysis() {
                   <div key={driver.driver} className="space-y-3">
                     <div className="flex justify-between items-center text-xs font-['Space_Grotesk'] font-bold uppercase tracking-widest text-white">
                       <span className="flex items-center gap-1.5">
-                        <img src={getFlagUrl(driver.driver)} alt={driver.driver} style={{ width: 18, height: 14, borderRadius: 1 }} />
+                         <img src={getFlagUrl(driver.driver)} alt={driver.driver} loading="lazy" decoding="async" style={{ width: 18, height: 14, borderRadius: 1 }} />
                         {driver.driver}
                       </span>
                       <span className="text-[#e9bcb5]">{detail}</span>
@@ -368,7 +368,7 @@ export default function RaceAnalysis() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: dur(0.4) }}
-            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            {...(!isMobile && { whileHover: { y: -3, transition: { duration: 0.2 } } })}
             style={{
               background: 'rgba(255,255,255,0.03)',
               backdropFilter: 'blur(12px)',
@@ -397,7 +397,7 @@ export default function RaceAnalysis() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: dur(0.4) }}
-            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            {...(!isMobile && { whileHover: { y: -3, transition: { duration: 0.2 } } })}
             style={{
               background: 'rgba(255,255,255,0.03)',
               backdropFilter: 'blur(12px)',
@@ -426,7 +426,7 @@ export default function RaceAnalysis() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: dur(0.4) }}
-            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            {...(!isMobile && { whileHover: { y: -3, transition: { duration: 0.2 } } })}
             style={{
               background: 'rgba(255,255,255,0.03)',
               backdropFilter: 'blur(12px)',

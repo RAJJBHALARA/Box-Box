@@ -6,8 +6,7 @@ import { useTypewriter } from '../utils/useTypewriter';
 import SkeletonLoader from '../components/SkeletonLoader';
 import CustomDropdown from '../components/CustomDropdown';
 import PageTransition from '../components/PageTransition';
-import { getFantasyPicks, getAvailableRaces, getCurrentForm } from '../services/api';
-import { DRIVER_DATA } from '../utils/teamColors';
+import { getFantasyPicks, getAvailableRaces } from '../services/api';
 import { getFlagUrl } from '../utils/flagHelper';
 import DriverImage from '../components/DriverImage';
 import { useMode } from '../context/ModeContext';
@@ -48,7 +47,7 @@ export default function FantasyPicks() {
       `Drivers: ${driverLine}\n` +
       `Constructor: ${teamLine}\n` +
       `Powered by @BoxBoxApp\n` +
-      `box-box-raj.vercel.app\n` +
+      `boxbox.app\n` +
       `#F1 #F1Fantasy #Formula1`
     );
   }
@@ -69,7 +68,7 @@ export default function FantasyPicks() {
       `My BoxBox picks for ${selectedRace || 'the next race'} 🏎️\n` +
       `Drivers: ${driverLine}\n` +
       `Constructor: ${teamLine}\n` +
-      `Powered by @BoxBoxApp | box-box-raj.vercel.app\n` +
+      `Powered by @BoxBoxApp | boxbox.app\n` +
       `#F1 #F1Fantasy #Formula1`;
     navigator.clipboard.writeText(text).then(() => {
       setShareState('copied');
@@ -95,32 +94,36 @@ export default function FantasyPicks() {
     fetchRaces();
   }, [season]);
 
-  // Fetch form data
-  useEffect(() => {
-    let active = true;
-    getCurrentForm()
-      .then(res => {
-        if (!active) return;
-        setCurrentForm(res.data.form_data || {});
-        setFormSource(res.data.source || '');
-      })
-      .catch(err => console.error("Failed to fetch form data", err));
-    return () => { active = false; };
-  }, []);
+  // Fetch fantasy picks with retry logic for Render cold starts
+  const [retryAttempt, setRetryAttempt] = useState(0);
 
-  // Fetch fantasy picks
   useEffect(() => {
     if (!selectedRace) return;
-    const fetchPicks = async () => {
+    let cancelled = false;
+    let retryTimer = null;
+
+    const fetchFantasyPicks = async (retryCount = 0) => {
       try {
-        setIsLoading(true);
-        setError(null);
+        if (retryCount === 0) {
+          setIsLoading(true);
+          setError(null);
+          setDrivers([]);
+          setConstructor(null);
+          setKeyInsight('');
+          setDriversToAvoid([]);
+          setCurrentForm({});
+          setFormSource('');
+        }
+        setRetryAttempt(retryCount);
+
         const res = await getFantasyPicks(selectedRace, parseInt(season));
+        if (cancelled) return;
         const data = res.data;
 
         if (data.error) {
           setError(data.message || 'AI could not generate picks.');
           setDrivers([]);
+          setIsLoading(false);
           return;
         }
 
@@ -139,18 +142,34 @@ export default function FantasyPicks() {
         setConstructor(data.constructor || null);
         setKeyInsight(data.key_insight || '');
         setDriversToAvoid(data.drivers_to_avoid || []);
-      } catch (err) {
-        setError(
-          err.message === 'RATE_LIMIT' ? 'Too many requests — wait a minute.' :
-          err.message === 'AUTH_ERROR' ? 'Authentication failed.' :
-          err.message === 'NO_DATA' ? 'No fantasy data for this race.' :
-          'Failed to fetch picks. Check backend.'
-        );
-      } finally {
+        setCurrentForm(data.form_data || {});
+        setFormSource(data.source || '');
+        setError(null);
         setIsLoading(false);
+      } catch (err) {
+        if (cancelled) return;
+        if (retryCount < 2) {
+          setError('RETRYING');
+          retryTimer = setTimeout(() => {
+            if (!cancelled) fetchFantasyPicks(retryCount + 1);
+          }, 8000);
+        } else {
+          setError(
+            err.message === 'RATE_LIMIT' ? 'Too many requests — wait a minute.' :
+            err.message === 'AUTH_ERROR' ? 'Authentication failed.' :
+            err.message === 'NO_DATA' ? 'No fantasy data for this race.' :
+            err.message === 'REQUEST_TIMEOUT' ? 'Backend took too long to wake up. Try again in a moment.' :
+            'Failed to fetch picks. Check backend.'
+          );
+          setIsLoading(false);
+        }
       }
     };
-    fetchPicks();
+    fetchFantasyPicks();
+    return () => {
+      cancelled = true;
+      clearTimeout(retryTimer);
+    };
   }, [selectedRace, season]);
 
   return (
@@ -180,7 +199,25 @@ export default function FantasyPicks() {
         </div>
 
         {/* Error Banner */}
-        {error && (
+        {error === 'RETRYING' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-8 p-4 bg-amber-500/10 border border-amber-400/30 rounded flex items-center justify-between gap-3 text-amber-200"
+          >
+            <div className="flex items-center gap-3">
+              <AlertCircle size={20} />
+              <span className="font-['Space_Grotesk'] font-bold uppercase tracking-widest text-sm">
+                Backend waking up, retrying automatically... ⚙️
+              </span>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-300/80">
+              Attempt {retryAttempt + 1}/3
+            </span>
+          </motion.div>
+        )}
+
+        {error && error !== 'RETRYING' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8 p-4 bg-red-900/20 border border-red-500/50 rounded flex items-center gap-3 text-red-400">
             <AlertCircle size={20} />
             <span className="font-['Space_Grotesk'] font-bold uppercase tracking-widest text-sm">{error}</span>
@@ -272,7 +309,7 @@ export default function FantasyPicks() {
               </div>
 
               <motion.button 
-                whileHover={{ gap: '12px' }}
+                {...(!isMobile && { whileHover: { gap: '12px' } })}
                 className="mt-12 w-full py-4 bg-[#e10600] text-white font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(225,6,0,0.4)] hover:brightness-110 active:scale-[0.98] transition-all"
                 style={{ borderRadius: 100 }}
               >
@@ -286,7 +323,7 @@ export default function FantasyPicks() {
                   onClick={handleShare}
                   disabled={drivers.length === 0 || isLoading}
                   whileTap={{ scale: 0.96 }}
-                  whileHover={{ scale: 1.02 }}
+                  {...(!isMobile && { whileHover: { scale: 1.02 } })}
                   className={`flex-1 py-3 rounded-xl font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all border ${
                     drivers.length === 0 || isLoading
                       ? 'border-white/5 text-[#555] cursor-not-allowed'
@@ -304,7 +341,7 @@ export default function FantasyPicks() {
                   onClick={handleCopy}
                   disabled={drivers.length === 0 || isLoading}
                   whileTap={{ scale: 0.96 }}
-                  whileHover={{ scale: 1.02 }}
+                  {...(!isMobile && { whileHover: { scale: 1.02 } })}
                   className={`px-4 py-3 rounded-xl font-['Space_Grotesk'] font-bold text-xs flex items-center justify-center gap-2 transition-all border ${
                     drivers.length === 0 || isLoading
                       ? 'border-white/5 text-[#555] cursor-not-allowed'
@@ -360,7 +397,7 @@ export default function FantasyPicks() {
                      <motion.div 
                        key={driver.id}
                        variants={itemVariants}
-                       whileHover={{ y: -8, boxShadow: '0 20px 40px -20px rgba(0,0,0,0.5)' }}
+                       {...(!isMobile && { whileHover: { y: -8, boxShadow: '0 20px 40px -20px rgba(0,0,0,0.5)' } })}
                        style={{
                          background: 'rgba(255,255,255,0.03)',
                          backdropFilter: 'blur(12px)',
@@ -390,7 +427,7 @@ export default function FantasyPicks() {
                        <div className="p-6">
                           <h3 className="font-['Space_Grotesk'] font-bold text-white text-xl mb-1 flex items-center gap-2">
                             <span className="flex items-center justify-center">
-                              <img src={getFlagUrl(driver.code)} alt={driver.code} style={{ width: 24, height: 18, borderRadius: 2 }} />
+                              <img src={getFlagUrl(driver.code)} alt={driver.code} loading="lazy" decoding="async" style={{ width: 24, height: 18, borderRadius: 2 }} />
                             </span>
                             <span>{driver.name}</span>
                           </h3>
@@ -432,7 +469,8 @@ export default function FantasyPicks() {
                              </div>
                              <motion.button 
                                whileTap={{ scale: 0.95 }}
-                               className="px-6 py-2 text-white text-[10px] font-bold uppercase tracking-widest transition-all hover:bg-[#e10600] hover:scale-[1.02]"
+                               {...(!isMobile && { whileHover: { scale: 1.02 } })}
+                                className="px-6 py-2 text-white text-[10px] font-bold uppercase tracking-widest transition-all hover:bg-[#e10600] hover:scale-[1.02]"
                                style={{
                                  background: 'rgba(255,255,255,0.06)',
                                  border: '1px solid rgba(255,255,255,0.12)',

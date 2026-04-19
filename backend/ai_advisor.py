@@ -2,6 +2,7 @@ import google.generativeai as genai
 import os
 import json
 import re
+import functools
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,7 +11,17 @@ load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-2.5-flash")
+
+generation_config = {
+    "temperature": 0.2,
+    "top_p": 0.8,
+    "top_k": 40,
+    "max_output_tokens": 300
+}
+model = genai.GenerativeModel(
+    "gemini-1.5-pro",
+    generation_config=generation_config
+)
 
 def parse_json_response(text: str) -> dict:
     try:
@@ -36,6 +47,28 @@ def _safe_fallback(raw_text: str = "") -> dict:
         "drivers_to_avoid": [],
         "raw": raw_text
     }
+
+def _is_valid_text(text: str) -> bool:
+    """Validate AI-generated text for typos and corruption."""
+    if not text or len(text) < 30:
+        return False
+
+    if not text[0].isupper():
+        return False
+
+    bad_patterns = [
+        r'\b\w*([a-z])\1{2,}\w*\b',
+        r'\b\w+tt[a-z]+\b',
+        r'\buuber',
+        r'\bbeeng\b',
+        r'\bqualiff',
+        r"[a-z]'[a-z]{1,2}\s+lie\b",
+    ]
+    for pattern in bad_patterns:
+        if re.search(pattern, text, re.IGNORECASE):
+            return False
+
+    return True
 
 def get_fantasy_picks(race: str, form_data: dict) -> dict:
     prompt = f"""
@@ -68,7 +101,13 @@ def get_fantasy_picks(race: str, form_data: dict) -> dict:
     """
     try:
         response = model.generate_content(prompt)
-        return parse_json_response(response.text)
+        parsed = parse_json_response(response.text)
+        if not parsed.get("error"):
+            return parsed
+
+        retry_prompt = prompt + "\nPREVIOUS ATTEMPT WAS INVALID. Return only valid JSON with clear English reasoning."
+        response2 = model.generate_content(retry_prompt)
+        return parse_json_response(response2.text)
     except Exception as e:
         print(f"[Gemini Fantasy Error] {e}")
         return parse_json_response("{}") # Will trigger the safe fallback structure
@@ -92,29 +131,16 @@ STRICT RULES — follow every one:
 - Plain text only. No JSON, no markdown, no bullet points.
 """
 
-    def is_valid(text: str) -> bool:
-        if not text or len(text.split()) < 30:
-            return False
-        # Check for repeated words (3+ times in a row)
-        words = text.split()
-        for i in range(len(words) - 2):
-            if words[i].lower() == words[i+1].lower() == words[i+2].lower():
-                return False
-        # Starts with a letter (not a symbol/number)
-        if not text[0].isalpha():
-            return False
-        return True
-
     try:
         response = model.generate_content(prompt)
         text = response.text.strip()
-        if is_valid(text):
+        if _is_valid_text(text):
             return text
         # One retry with stronger instruction
         retry_prompt = prompt + "\n\nPREVIOUS ATTEMPT WAS INVALID. Start your response ONLY with the driver's name, e.g. 'Carlos Sainz...' or 'Lewis Hamilton...'"
         response2 = model.generate_content(retry_prompt)
         text2 = response2.text.strip()
-        if is_valid(text2):
+        if _is_valid_text(text2):
             return text2
         return "Telemetry analysis unavailable for this lap."
     except Exception as e:
@@ -131,16 +157,23 @@ def get_rivalry_analysis(stats: dict, d1: str, d2: str) -> str:
     Write exactly 2 sentences of expert analysis.
     Mention specific numbers from the data.
     Be direct and opinionated — take a side.
+    Write in perfect English. Zero typos. Zero broken words.
     Respond as plain text only, no JSON, no markdown.
     """
     try:
         response = model.generate_content(prompt)
-        return response.text.strip()
+        text = response.text.strip()
+        if _is_valid_text(text):
+            return text
+        # Retry once
+        response2 = model.generate_content(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Write carefully in perfect English.")
+        text2 = response2.text.strip()
+        if _is_valid_text(text2):
+            return text2
+        return "Analysis unavailable. Rivalry data processing encountered an interruption."
     except Exception as e:
         print(f"[Gemini Rivalry Error] {e}")
         return "Analysis unavailable. Rivalry data processing encountered an interruption."
-
-import functools
 
 @functools.lru_cache(maxsize=32)
 def get_circuit_insight(circuit: str) -> str:
@@ -150,11 +183,19 @@ def get_circuit_insight(circuit: str) -> str:
     
     Give exactly ONE sentence of tactical insight or strategy for this specific track.
     Sound sharp, professional, and focus on telemetry, tires, or DRS.
+    Write in perfect English. Zero typos. Zero broken words.
     No hashtags, no pleasantries, just data-driven tactical advice.
     """
     try:
         response = model.generate_content(prompt)
-        return response.text.strip()
+        text = response.text.strip()
+        if text and len(text) > 20 and text[0].isupper():
+            return text
+        response2 = model.generate_content(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Write one clean sentence in perfect English.")
+        text2 = response2.text.strip()
+        if text2 and len(text2) > 20 and text2[0].isupper():
+            return text2
+        return "Tactical data stream interrupted. Awaiting telemetry refresh."
     except Exception as e:
         print(f"[Gemini Circuit Insight Error] {e}")
         return "Tactical data stream interrupted. Awaiting telemetry refresh."
@@ -184,16 +225,22 @@ Write exactly 2 sentences.
 Sentence 1: Who leads statistically and by how much, citing specific numbers.
 Sentence 2: Bold verdict on legacy.
 Be direct and opinionated.
-Perfect English only. No jargon.
+Perfect English only. No jargon. Zero typos. Zero broken words.
 Start with a driver name, not 'The' or 'While'.
 Plain text only. No markdown or formatting."""
 
     try:
         response = model.generate_content(prompt)
         text = response.text.strip()
-        if len(text) < 20:
-            raise ValueError("Response too short")
-        return text
+        if _is_valid_text(text):
+            return text
+
+        response2 = model.generate_content(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Rewrite both sentences in perfect English.")
+        text2 = response2.text.strip()
+        if _is_valid_text(text2):
+            return text2
+
+        raise ValueError("Response too short or corrupted")
     except Exception as e:
         print(f"[Career Compare Error] {e}")
         # Return a real analytical fallback, not a generic error
