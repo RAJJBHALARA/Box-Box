@@ -9,8 +9,11 @@ load_dotenv()
 
 # We check it at startup in main.py, but for local tests it's useful to verify here
 api_key = os.getenv("GEMINI_API_KEY")
+AI_ENABLED = bool(api_key)
 if api_key:
     genai.configure(api_key=api_key)
+else:
+    print("[WARNING] GEMINI_API_KEY not set in ai_advisor.py. AI generation disabled; deterministic fallbacks will be used.")
 
 generation_config = {
     "temperature": 0.2,
@@ -18,10 +21,139 @@ generation_config = {
     "top_k": 40,
     "max_output_tokens": 300
 }
-model = genai.GenerativeModel(
-    "gemini-1.5-pro",
-    generation_config=generation_config
-)
+model = None
+if AI_ENABLED:
+    try:
+        model = genai.GenerativeModel(
+            "gemini-1.5-pro",
+            generation_config=generation_config
+        )
+    except Exception as e:
+        print(f"[Gemini Init Error] {e}")
+
+_MODEL_CACHE = {}
+
+
+def _get_model(model_name: str):
+    if model_name in _MODEL_CACHE:
+        return _MODEL_CACHE[model_name]
+    _MODEL_CACHE[model_name] = genai.GenerativeModel(
+        model_name,
+        generation_config=generation_config
+    )
+    return _MODEL_CACHE[model_name]
+
+
+def _generate_text(prompt: str) -> str:
+    """Generate text with model fallbacks to avoid hard failures when one model is unavailable."""
+    if not AI_ENABLED:
+        return ""
+
+    preferred = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+    candidate_models = []
+    for name in [preferred, "gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.5-flash"]:
+        if name not in candidate_models:
+            candidate_models.append(name)
+
+    for name in candidate_models:
+        try:
+            active_model = model if name == "gemini-1.5-pro" and model else _get_model(name)
+            response = active_model.generate_content(prompt)
+            text = (getattr(response, "text", "") or "").strip()
+            if text:
+                return text
+        except Exception as e:
+            print(f"[Gemini Generate Error:{name}] {e}")
+            continue
+
+    return ""
+
+
+def _looks_like_two_sentences(text: str) -> bool:
+    sentence_count = len(re.findall(r'[.!?]+', text or ""))
+    return sentence_count >= 2
+
+
+def _to_int(value, default=0):
+    try:
+        if value is None:
+            return default
+        return int(value)
+    except Exception:
+        return default
+
+
+def _to_float(value, default=0.0):
+    try:
+        if value is None:
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
+def _build_rivalry_fallback(stats: dict, d1: str, d2: str) -> str:
+    qualifying = stats.get("qualifying", {}) if isinstance(stats, dict) else {}
+    race_wins = stats.get("race_wins", {}) if isinstance(stats, dict) else {}
+    points = stats.get("points", {}) if isinstance(stats, dict) else {}
+    avg_gap = _to_float(stats.get("avg_gap", 0.0) if isinstance(stats, dict) else 0.0, 0.0)
+
+    q1 = _to_int(qualifying.get(d1, 0), 0)
+    q2 = _to_int(qualifying.get(d2, 0), 0)
+    w1 = _to_int(race_wins.get(d1, 0), 0)
+    w2 = _to_int(race_wins.get(d2, 0), 0)
+    p1 = _to_int(points.get(d1, 0), 0)
+    p2 = _to_int(points.get(d2, 0), 0)
+
+    if p1 == p2:
+        leader = d1 if (w1 > w2 or (w1 == w2 and q1 >= q2)) else d2
+    else:
+        leader = d1 if p1 > p2 else d2
+    chaser = d2 if leader == d1 else d1
+
+    lead_points = p1 if leader == d1 else p2
+    chase_points = p2 if leader == d1 else p1
+    lead_wins = w1 if leader == d1 else w2
+    chase_wins = w2 if leader == d1 else w1
+    lead_qualy = q1 if leader == d1 else q2
+    chase_qualy = q2 if leader == d1 else q1
+
+    sentence1 = (
+        f"{leader} leads this rivalry with {lead_points} points to {chase_points}, "
+        f"{lead_wins} race wins to {chase_wins}, and a {lead_qualy}-{chase_qualy} qualifying split."
+    )
+
+    if abs(avg_gap) > 0.0001:
+        sentence2 = (
+            f"The average pace gap is {avg_gap:+.3f}s, so {leader} currently has the stronger race trend "
+            f"while {chaser} needs cleaner execution to swing momentum."
+        )
+    else:
+        sentence2 = (
+            f"With pace nearly level on average, strategy calls and consistency are likely to decide "
+            f"the next chapter of this duel."
+        )
+
+    return f"{sentence1} {sentence2}"
+
+
+def _build_lap_fallback(telemetry: dict, driver: str, race: str, lap: int) -> str:
+    lap_time = telemetry.get("lap_time") or telemetry.get("lapTime") or telemetry.get("lapTimeStr") or "N/A"
+    max_speed = telemetry.get("max_speed") or telemetry.get("maxSpeed")
+    avg_speed = telemetry.get("avg_speed") or telemetry.get("avgSpeed")
+    s1 = telemetry.get("sector1") or telemetry.get("sector_1") or telemetry.get("s1")
+    s2 = telemetry.get("sector2") or telemetry.get("sector_2") or telemetry.get("s2")
+    s3 = telemetry.get("sector3") or telemetry.get("sector_3") or telemetry.get("s3")
+
+    max_speed_str = f"{_to_float(max_speed, 0.0):.1f} km/h" if max_speed is not None else "N/A"
+    avg_speed_str = f"{_to_float(avg_speed, 0.0):.1f} km/h" if avg_speed is not None else "N/A"
+    sector_str = f"S1 {s1}, S2 {s2}, S3 {s3}" if all(v is not None for v in [s1, s2, s3]) else "sector-level time split unavailable"
+
+    return (
+        f"{driver} completed lap {lap} at {race} in {lap_time} with a top speed of {max_speed_str} "
+        f"and an average speed of {avg_speed_str}. The run shows {sector_str}, and the biggest gain is likely to come "
+        f"from cleaner corner exits and improved traction consistency."
+    )
 
 def parse_json_response(text: str) -> dict:
     try:
@@ -50,6 +182,8 @@ def _safe_fallback(raw_text: str = "") -> dict:
 
 def _is_valid_text(text: str) -> bool:
     """Validate AI-generated text for typos and corruption."""
+    text = (text or "").strip()
+
     if not text or len(text) < 30:
         return False
 
@@ -63,6 +197,8 @@ def _is_valid_text(text: str) -> bool:
         r'\bbeeng\b',
         r'\bqualiff',
         r"[a-z]'[a-z]{1,2}\s+lie\b",
+        r'\b\w*([a-z])\1\w*([a-z])\2\w*\b',
+        r'\b[a-z]*[bcdfghjklmnpqrstvwxyz]{6,}[a-z]*\b',
     ]
     for pattern in bad_patterns:
         if re.search(pattern, text, re.IGNORECASE):
@@ -100,14 +236,14 @@ def get_fantasy_picks(race: str, form_data: dict) -> dict:
     }}
     """
     try:
-        response = model.generate_content(prompt)
-        parsed = parse_json_response(response.text)
+        text = _generate_text(prompt)
+        parsed = parse_json_response(text)
         if not parsed.get("error"):
             return parsed
 
         retry_prompt = prompt + "\nPREVIOUS ATTEMPT WAS INVALID. Return only valid JSON with clear English reasoning."
-        response2 = model.generate_content(retry_prompt)
-        return parse_json_response(response2.text)
+        text2 = _generate_text(retry_prompt)
+        return parse_json_response(text2)
     except Exception as e:
         print(f"[Gemini Fantasy Error] {e}")
         return parse_json_response("{}") # Will trigger the safe fallback structure
@@ -132,20 +268,18 @@ STRICT RULES — follow every one:
 """
 
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
+        text = _generate_text(prompt)
         if _is_valid_text(text):
             return text
         # One retry with stronger instruction
         retry_prompt = prompt + "\n\nPREVIOUS ATTEMPT WAS INVALID. Start your response ONLY with the driver's name, e.g. 'Carlos Sainz...' or 'Lewis Hamilton...'"
-        response2 = model.generate_content(retry_prompt)
-        text2 = response2.text.strip()
+        text2 = _generate_text(retry_prompt)
         if _is_valid_text(text2):
             return text2
-        return "Telemetry analysis unavailable for this lap."
+        return _build_lap_fallback(telemetry, driver, race, lap)
     except Exception as e:
         print(f"[Gemini Lap Error] {e}")
-        return "Telemetry analysis unavailable for this lap."
+        return _build_lap_fallback(telemetry, driver, race, lap)
 
 def get_rivalry_analysis(stats: dict, d1: str, d2: str) -> str:
     prompt = f"""
@@ -161,19 +295,21 @@ def get_rivalry_analysis(stats: dict, d1: str, d2: str) -> str:
     Respond as plain text only, no JSON, no markdown.
     """
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-        if _is_valid_text(text):
+        text = _generate_text(prompt)
+        if _is_valid_text(text) and _looks_like_two_sentences(text):
             return text
         # Retry once
-        response2 = model.generate_content(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Write carefully in perfect English.")
-        text2 = response2.text.strip()
-        if _is_valid_text(text2):
+        retry_prompt = (
+            prompt
+            + "\nPREVIOUS ATTEMPT HAD TYPOS. Write exactly 2 clean sentences in plain English."
+        )
+        text2 = _generate_text(retry_prompt)
+        if _is_valid_text(text2) and _looks_like_two_sentences(text2):
             return text2
-        return "Analysis unavailable. Rivalry data processing encountered an interruption."
+        return _build_rivalry_fallback(stats, d1, d2)
     except Exception as e:
         print(f"[Gemini Rivalry Error] {e}")
-        return "Analysis unavailable. Rivalry data processing encountered an interruption."
+        return _build_rivalry_fallback(stats, d1, d2)
 
 @functools.lru_cache(maxsize=32)
 def get_circuit_insight(circuit: str) -> str:
@@ -187,12 +323,10 @@ def get_circuit_insight(circuit: str) -> str:
     No hashtags, no pleasantries, just data-driven tactical advice.
     """
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
+        text = _generate_text(prompt)
         if text and len(text) > 20 and text[0].isupper():
             return text
-        response2 = model.generate_content(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Write one clean sentence in perfect English.")
-        text2 = response2.text.strip()
+        text2 = _generate_text(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Write one clean sentence in perfect English.")
         if text2 and len(text2) > 20 and text2[0].isupper():
             return text2
         return "Tactical data stream interrupted. Awaiting telemetry refresh."
@@ -230,13 +364,11 @@ Start with a driver name, not 'The' or 'While'.
 Plain text only. No markdown or formatting."""
 
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
+        text = _generate_text(prompt)
         if _is_valid_text(text):
             return text
 
-        response2 = model.generate_content(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Rewrite both sentences in perfect English.")
-        text2 = response2.text.strip()
+        text2 = _generate_text(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Rewrite both sentences in perfect English.")
         if _is_valid_text(text2):
             return text2
 
