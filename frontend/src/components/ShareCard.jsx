@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { getDriverImage } from '../utils/driverImages';
 
+const hexToRgba = (hex, alpha = 1) => {
+  if (!hex) return `rgba(255, 255, 255, ${alpha})`;
+  let value = hex.replace('#', '');
+  if (value.length === 3) {
+    value = value.split('').map((char) => char + char).join('');
+  }
+  if (value.length !== 6) return `rgba(255, 255, 255, ${alpha})`;
+
+  const num = Number.parseInt(value, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 // ── Team colour lookup ────────────────────────────────────────────────────────
 export const getShareTeamColor = (team = '') => {
   const map = {
@@ -106,7 +121,7 @@ function PodiumCol({ driver, isWinner, driverImage }) {
         fontSize: isWinner ? 380 : 240,
         fontWeight: 900,
         fontStyle: 'italic',
-        color: `${posAccent}${isWinner ? '0C' : '09'}`,
+        color: hexToRgba(posAccent, isWinner ? 0.05 : 0.035),
         lineHeight: 1,
         fontFamily: "'Space Grotesk', sans-serif",
         userSelect: 'none',
@@ -117,7 +132,7 @@ function PodiumCol({ driver, isWinner, driverImage }) {
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0,
         height: isWinner ? '60%' : '50%',
-        background: `linear-gradient(180deg, ${color}${isWinner ? '35' : '20'}, transparent)`,
+        background: `linear-gradient(180deg, ${hexToRgba(color, isWinner ? 0.21 : 0.12)}, transparent)`,
         zIndex: 0,
       }} />
 
@@ -134,7 +149,7 @@ function PodiumCol({ driver, isWinner, driverImage }) {
         <div style={{
           position: 'absolute', top: 28, right: 24,
           width: 120, height: 120,
-          background: 'radial-gradient(circle, #FFD70040, transparent)',
+          background: 'radial-gradient(circle, rgba(255, 215, 0, 0.25), transparent)',
           borderRadius: '50%', zIndex: 1,
         }} />
       )}
@@ -205,8 +220,8 @@ function PodiumCol({ driver, isWinner, driverImage }) {
         {/* Position badge */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
-          background: `${posAccent}22`,
-          border: `1px solid ${posAccent}66`,
+          background: hexToRgba(posAccent, 0.13),
+          border: `1px solid ${hexToRgba(posAccent, 0.4)}`,
           borderRadius: 20, padding: '4px 12px',
           marginBottom: 10,
         }}>
@@ -257,7 +272,7 @@ function PodiumCol({ driver, isWinner, driverImage }) {
 }
 
 // ── Main ShareCard (1080×1080 or 1080×1350) ────────────────────────────────────
-export default function ShareCard({ raceData, format = 'square' }) {
+export default function ShareCard({ raceData, format = 'square', cardId = 'share-card', exportMode = false }) {
   const { raceName, round, year, p1, p2, p3, fastestLap } = raceData;
   const [driverImages, setDriverImages] = useState({});
 
@@ -287,7 +302,7 @@ export default function ShareCard({ raceData, format = 'square' }) {
 
   return (
     <div
-      id="share-card"
+      id={cardId}
       style={{
         width: W, height: H,
         background: '#080808',
@@ -297,6 +312,7 @@ export default function ShareCard({ raceData, format = 'square' }) {
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
+        isolation: 'isolate',
       }}
     >
       {/* ── Background Layers ── */}
@@ -305,23 +321,27 @@ export default function ShareCard({ raceData, format = 'square' }) {
         position: 'absolute', top: -120, left: '50%',
         transform: 'translateX(-50%)',
         width: 960, height: 660,
-        background: 'radial-gradient(ellipse, #E1060040 0%, #E1060010 35%, transparent 65%)',
+        background: 'radial-gradient(ellipse, rgba(225, 6, 0, 0.25) 0%, rgba(225, 6, 0, 0.06) 35%, transparent 65%)',
         zIndex: 0, pointerEvents: 'none',
       }} />
 
       {/* Carbon fiber crosshatch */}
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 0,
-        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.012) 2px, rgba(255,255,255,0.012) 4px)',
-        pointerEvents: 'none',
-      }} />
+      {!exportMode && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.012) 2px, rgba(255,255,255,0.012) 4px)',
+          pointerEvents: 'none',
+        }} />
+      )}
 
       {/* Scanline overlay */}
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 0,
-        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.008) 3px, rgba(255,255,255,0.008) 4px)',
-        pointerEvents: 'none',
-      }} />
+      {!exportMode && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.008) 3px, rgba(255,255,255,0.008) 4px)',
+          pointerEvents: 'none',
+        }} />
+      )}
 
       {/* Corner brackets */}
       {['tl','tr','bl','br'].map(p => <CornerBracket key={p} pos={p} />)}
@@ -379,7 +399,7 @@ export default function ShareCard({ raceData, format = 'square' }) {
         <div>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: '#7C3AED20',
+            background: 'rgba(124, 58, 237, 0.12)',
             border: '1px solid #7C3AED',
             borderRadius: 20, padding: '7px 16px',
             marginBottom: 8,

@@ -15,6 +15,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
   const [format, setFormat]             = useState('square');
   const [isGenerating, setGenerating]   = useState(false);
   const [isMobile, setIsMobile]         = useState(false);
+  const EXPORT_CARD_ID = 'share-card-export';
 
   // Responsive check
   useEffect(() => {
@@ -26,19 +27,59 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
 
   if (!raceData) return null;
 
+  const waitForNodeAssets = async (node) => {
+    if (!node) return;
+
+    if (document.fonts?.ready) {
+      try {
+        await document.fonts.ready;
+      } catch {
+        // Ignore font readiness failures and continue.
+      }
+    }
+
+    const images = Array.from(node.querySelectorAll('img'));
+    await Promise.all(
+      images.map((img) => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise((resolve) => {
+          const finish = () => resolve();
+          img.addEventListener('load', finish, { once: true });
+          img.addEventListener('error', finish, { once: true });
+          setTimeout(resolve, 2500);
+        });
+      })
+    );
+  };
+
   // ── Download handler ───────────────────────────────────────────────────────
   const downloadCard = async () => {
     setGenerating(true);
     try {
-      const node = document.getElementById('share-card');
+      const node = document.getElementById(EXPORT_CARD_ID);
       if (!node) return;
 
-      const blob = await domtoimage.toBlob(node, {
+      const exportHeight = format === 'portrait' ? 1350 : 1080;
+
+      await waitForNodeAssets(node);
+
+      const captureOptions = {
         quality: 1,
         scale: 2,
+        bgcolor: '#080808',
+        width: 1080,
+        height: exportHeight,
+        cacheBust: true,
         useCORS: true,
         allowTaint: false,
-      });
+        style: {
+          margin: '0',
+          transform: 'none',
+          border: 'none',
+        },
+      };
+
+      const blob = await domtoimage.toBlob(node, captureOptions);
 
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -55,9 +96,27 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
     } catch (err) {
       console.error('Download failed:', err);
       try {
+        const node = document.getElementById(EXPORT_CARD_ID);
+        if (!node) throw new Error('Share card not found');
+        const exportHeight = format === 'portrait' ? 1350 : 1080;
+        await waitForNodeAssets(node);
+
         const dataUrl = await domtoimage.toPng(
-          document.getElementById('share-card'),
-          { scale: 2 }
+          node,
+          {
+            scale: 2,
+            bgcolor: '#080808',
+            width: 1080,
+            height: exportHeight,
+            cacheBust: true,
+            useCORS: true,
+            allowTaint: false,
+            style: {
+              margin: '0',
+              transform: 'none',
+              border: 'none',
+            },
+          }
         );
         window.open(dataUrl, '_blank');
       } catch (fallbackError) {
@@ -151,7 +210,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
               pointerEvents: 'none',
             }}
           >
-            <ShareCard raceData={raceData} format={format} />
+            <ShareCard raceData={raceData} format={format} cardId="share-card-preview" />
           </div>
         </div>
       </div>
@@ -206,6 +265,26 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Off-screen export node (no preview scale transform) */}
+          <div
+            style={{
+              position: 'fixed',
+              left: -10000,
+              top: -10000,
+              width: 1080,
+              height: format === 'portrait' ? 1350 : 1080,
+              pointerEvents: 'none',
+              zIndex: -1,
+            }}
+          >
+            <ShareCard
+              raceData={raceData}
+              format={format}
+              cardId={EXPORT_CARD_ID}
+              exportMode={true}
+            />
+          </div>
+
           {/* Backdrop */}
           <motion.div
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100]"
