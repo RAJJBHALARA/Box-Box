@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import domtoimage from 'dom-to-image-more';
 import ShareCard from './ShareCard';
 import { X, Download, Loader2 } from 'lucide-react';
@@ -25,7 +26,9 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  if (!raceData) return null;
+  const canUsePortal = typeof document !== 'undefined';
+
+  if (!raceData || !canUsePortal) return null;
 
   const waitForNodeAssets = async (node) => {
     if (!node) return;
@@ -261,7 +264,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -322,7 +325,7 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
           ) : (
             /* ── Desktop: Centered modal ── */
             <motion.div
-              className="fixed inset-0 z-[101] flex items-center justify-center p-4"
+              className="fixed inset-0 z-[101] flex items-center justify-center p-4 overflow-y-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -331,13 +334,14 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
                 style={{
                   width: '100%',
                   maxWidth: 560,
+                  maxHeight: '92vh',
                   background: 'rgba(14, 14, 14, 0.95)',
                   backdropFilter: 'blur(20px)',
                   WebkitBackdropFilter: 'blur(20px)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: 20,
                 }}
-                className="overflow-hidden shadow-2xl"
+                className="overflow-y-auto shadow-2xl"
                 initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.85, opacity: 0 }}
@@ -352,4 +356,6 @@ export default function ShareModal({ isOpen, onClose, raceData }) {
       )}
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }
