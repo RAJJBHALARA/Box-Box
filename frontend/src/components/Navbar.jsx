@@ -7,6 +7,7 @@ import ModeToggle from './ModeToggle';
 export default function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [stars, setStars] = useState(null);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   useEffect(() => {
@@ -24,6 +25,23 @@ export default function Navbar() {
     if (typeof window === 'undefined') return;
     window.dispatchEvent(new CustomEvent('mobileMenuToggle', { detail: { open: mobileMenuOpen } }));
   }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch('https://api.github.com/repos/RAJJBHALARA/boxbox')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && typeof d?.stargazers_count === 'number') {
+          setStars(d.stargazers_count);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const links = [
     { name: 'Home', path: '/', navId: 'home' },
@@ -112,6 +130,36 @@ export default function Navbar() {
           <div className="hidden md:block" data-nav="mode-toggle">
             <ModeToggle />
           </div>
+
+          <a
+            href="https://github.com/RAJJBHALARA/boxbox"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:flex items-center"
+            style={{
+              gap: 6,
+              padding: '8px 14px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 100,
+              color: 'white',
+              textDecoration: 'none',
+              fontSize: 13,
+              fontWeight: 600,
+              transition: 'all 0.2s',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
+            }}
+          >
+            ⭐ {stars !== null ? `${stars.toLocaleString()} Stars` : 'Star'}
+          </a>
 
           <motion.button 
             animate={{ 

@@ -35,6 +35,14 @@ export const ModeProvider = ({ children }) => {
     });
   };
 
+  const setMode = (mode) => {
+    const nextIsBeginner = mode === 'beginner';
+    setIsBeginnerMode(nextIsBeginner);
+    try {
+      localStorage.setItem('pitwall_mode', nextIsBeginner ? 'beginner' : 'expert');
+    } catch {}
+  };
+
   const dismissTutorial = () => {
     setTutorialSeen(true);
     try {
@@ -46,6 +54,7 @@ export const ModeProvider = ({ children }) => {
     <ModeContext.Provider value={{
       isBeginnerMode,
       toggleMode,
+      setMode,
       tutorialSeen,
       dismissTutorial,
     }}>

@@ -6,8 +6,8 @@ import Navbar from './Navbar';
 import MobileBottomNav from './MobileBottomNav';
 import BeginnerBanner from './BeginnerBanner';
 import RaceWeekendBanner from './RaceWeekendBanner';
-import WelcomeTutorial from './WelcomeTutorial';
 import SpotlightTour from './SpotlightTour';
+import Footer from './Footer';
 
 export default function Layout() {
   const [showSlowWarning, setShowSlowWarning] = useState(false);
@@ -25,6 +25,8 @@ export default function Layout() {
       if (e.ctrlKey && e.shiftKey && e.key === 'T') {
         e.preventDefault();
         localStorage.removeItem('tutorial_seen');
+        localStorage.removeItem('pitwall_tutorial_seen');
+        localStorage.removeItem('onboarding_done');
         window.location.reload();
       }
     };
@@ -32,16 +34,14 @@ export default function Layout() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleStartTour = useCallback(() => {
-    setTourActive(true);
+  useEffect(() => {
+    const handleStartTour = () => setTourActive(true);
+    window.addEventListener('start-spotlight-tour', handleStartTour);
+    return () => window.removeEventListener('start-spotlight-tour', handleStartTour);
   }, []);
 
   const handleTourComplete = useCallback(() => {
     setTourActive(false);
-  }, []);
-
-  const handleSkip = useCallback(() => {
-    // tutorial_seen is already set by WelcomeTutorial
   }, []);
 
   return (
@@ -74,10 +74,10 @@ export default function Layout() {
       <main className="pt-20 pb-24 md:pb-0 overflow-x-hidden">
         <Outlet />
       </main>
+      <Footer />
       <MobileBottomNav />
 
       {/* Tutorial system */}
-      <WelcomeTutorial onStartTour={handleStartTour} onSkip={handleSkip} />
       <SpotlightTour active={tourActive} onComplete={handleTourComplete} />
     </div>
   );

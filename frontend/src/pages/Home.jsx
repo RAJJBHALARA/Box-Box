@@ -170,6 +170,7 @@ export default function Home() {
   const [leader, setLeader] = useState({ name: 'Max Verstappen', code: 'VER', team: 'Red Bull Racing' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [stars, setStars] = useState(null);
 
   useEffect(() => {
     const fetchLeader = async () => {
@@ -186,6 +187,23 @@ export default function Home() {
       }
     };
     fetchLeader();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch('https://api.github.com/repos/RAJJBHALARA/boxbox')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && typeof d?.stargazers_count === 'number') {
+          setStars(d.stargazers_count);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -239,6 +257,26 @@ export default function Home() {
                   : "Harnessing real-time telemetry from the paddock. Precision analytics engineered for the high-performance spectator."
                 }
               </motion.p>
+              <a
+                href="https://github.com/RAJJBHALARA/boxbox"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 20px',
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: 100,
+                  color: 'white',
+                  textDecoration: 'none',
+                  fontSize: 14,
+                  marginTop: 16
+                }}
+              >
+                ⭐ Star on GitHub — {stars !== null ? `${stars.toLocaleString()} Stars` : 'help us reach 5,000 stars'}
+              </a>
             </div>
             <motion.div
               initial={{ opacity: 0, y: 30 }}

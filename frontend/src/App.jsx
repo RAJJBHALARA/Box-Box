@@ -1,9 +1,10 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout';
 import BackendWakeup from './components/BackendWakeup';
+import OnboardingModal from './components/OnboardingModal';
 
 const Home = lazy(() => import('./pages/Home'));
 const RaceAnalysis = lazy(() => import('./pages/RaceAnalysis'));
@@ -15,10 +16,27 @@ const DriverCareer = lazy(() => import('./pages/DriverCareer'));
 
 function App() {
   const location = useLocation();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  useEffect(() => {
+    let timer;
+    try {
+      const done = localStorage.getItem('onboarding_done');
+      if (!done) {
+        timer = setTimeout(() => {
+          setShowOnboarding(true);
+        }, 1500);
+      }
+    } catch {}
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
 
   return (
     <>
@@ -70,6 +88,15 @@ function App() {
             </Route>
           </Routes>
         </Suspense>
+      </AnimatePresence>
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingModal
+            onComplete={() => {
+              setShowOnboarding(false);
+            }}
+          />
+        )}
       </AnimatePresence>
     </>
   );
