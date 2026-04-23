@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Play, SkipForward, Info, Timer, Zap, Gauge, Map, AlertCircle } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useAnimatedCounter } from '../utils/useAnimatedCounter';
-import { useTypewriter } from '../utils/useTypewriter';
 import ScrollProgress from '../components/ScrollProgress';
 import PageTransition from '../components/PageTransition';
 import CustomDropdown from '../components/CustomDropdown';
@@ -79,8 +78,28 @@ export default function LapExplainer() {
   // Derive circuit info from selected GP for dynamic SVG map
   const circuitInfo = getCircuitInfo(gp);
 
-  const aiAnalysis = telemetry?.aiAnalysis || "Pending telemetry analysis... Please wait while the AI generates insights.";
-  const displayedAnalysis = useTypewriter(error ? "Analysis Failed." : aiAnalysis, 35);
+  const fallbackAnalysis = "Pending telemetry analysis... Please wait while the AI generates insights.";
+
+  const isCorruptedText = (text) => {
+    if (!text) return true;
+    if (/(.)\1{2,}/.test(text)) return true;
+
+    const doubledAll = (text.match(/([a-z])\1/gi) || []).length;
+    if (doubledAll > 4) return true;
+
+    const weirdLongWords = (text.match(/[A-Za-z']{10,}/g) || []).filter(
+      (w) => /([aeiou])\1|([bcdfghjklmnpqrstvwxyz])\1/i.test(w)
+    );
+
+    return weirdLongWords.length > 0;
+  };
+
+  const rawAnalysis = telemetry?.aiAnalysis || fallbackAnalysis;
+  const displayedAnalysis = error
+    ? "Analysis temporarily unavailable. Please retry this lap in a moment."
+    : isCorruptedText(rawAnalysis)
+      ? "AI analysis temporarily unavailable. Retrying with clean telemetry summary."
+      : rawAnalysis;
   
   const lapTimeStr = telemetry?.lap_time || "--:--.---";
   

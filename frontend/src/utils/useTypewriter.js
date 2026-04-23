@@ -4,25 +4,28 @@ export function useTypewriter(text, baseSpeedMs = 30) {
   const [displayedText, setDisplayedText] = useState('');
 
   useEffect(() => {
-    if (!text) return;
     setDisplayedText('');
+    if (!text) return;
+
+    const safeText = String(text);
     let i = 0;
-    
+
     // Calculate dynamic speed based on length (aiming for ~2s total max)
     let speed = baseSpeedMs;
     const maxDuration = 2000;
-    if (text.length * baseSpeedMs > maxDuration) {
-      speed = maxDuration / text.length;
+    if (safeText.length * baseSpeedMs > maxDuration) {
+      speed = maxDuration / safeText.length;
     }
-    
+    speed = Math.max(12, speed);
+
     const intervalId = setInterval(() => {
-      setDisplayedText((prev) => prev + text.charAt(i));
       i++;
-      if (i >= text.length) {
+      setDisplayedText(safeText.slice(0, i));
+      if (i >= safeText.length) {
         clearInterval(intervalId);
       }
     }, speed);
-    
+
     return () => clearInterval(intervalId);
   }, [text, baseSpeedMs]);
 
