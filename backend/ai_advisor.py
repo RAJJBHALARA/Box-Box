@@ -24,12 +24,21 @@ elif api_key and not GENAI_AVAILABLE:
 else:
     print("[WARNING] GEMINI_API_KEY not set in ai_advisor.py. AI generation disabled; deterministic fallbacks will be used.")
 
-generation_config = {
-    "temperature": 0.2,
-    "top_p": 0.8,
-    "top_k": 40,
-    "max_output_tokens": 300
-}
+generation_config = (
+    genai.GenerationConfig(
+        temperature=0.1,
+        top_p=0.8,
+        top_k=20,
+        max_output_tokens=250,
+    )
+    if GENAI_AVAILABLE
+    else {
+        "temperature": 0.1,
+        "top_p": 0.8,
+        "top_k": 20,
+        "max_output_tokens": 250,
+    }
+)
 model = None
 if AI_ENABLED:
     try:
@@ -81,6 +90,28 @@ def _generate_text(prompt: str) -> str:
 def _looks_like_two_sentences(text: str) -> bool:
     sentence_count = len(re.findall(r'[.!?]+', text or ""))
     return sentence_count >= 2
+
+
+def is_clean_text(text: str) -> bool:
+    if not text or len(text) < 20:
+        return False
+
+    if re.search(r'(.)\1{2,}', text):
+        return False
+
+    if re.search(
+        r'[bcdfghjklmnpqrstvwxyz]{2}[bcdfghjklmnpqrstvwxyz]{2}',
+        text,
+        re.IGNORECASE,
+    ):
+        doubled = re.findall(r'([bcdfghjklmnpqrstvwxyz])\1', text, re.IGNORECASE)
+        if len(doubled) > 3:
+            return False
+
+    if not text[0].isupper():
+        return False
+
+    return True
 
 
 def _to_int(value, default=0):
@@ -324,10 +355,7 @@ def _is_valid_text(text: str) -> bool:
     """Validate AI-generated text for typos and corruption."""
     text = (text or "").strip()
 
-    if not text or len(text) < 30:
-        return False
-
-    if not text[0].isupper():
+    if not is_clean_text(text) or len(text) < 30:
         return False
 
     bad_patterns = [
@@ -345,6 +373,34 @@ def _is_valid_text(text: str) -> bool:
             return False
 
     return True
+
+
+def _has_corrupted_text_in_fantasy_payload(parsed: dict) -> bool:
+    if not isinstance(parsed, dict):
+        return True
+
+    key_insight = parsed.get("key_insight", "")
+    if key_insight and not is_clean_text(key_insight):
+        return True
+
+    constructor_reason = (
+        (parsed.get("constructor") or {}).get("reasoning", "")
+        if isinstance(parsed.get("constructor"), dict)
+        else ""
+    )
+    if constructor_reason and not is_clean_text(constructor_reason):
+        return True
+
+    drivers = parsed.get("drivers") or []
+    if isinstance(drivers, list):
+        for d in drivers:
+            if not isinstance(d, dict):
+                continue
+            reasoning = d.get("reasoning", "")
+            if reasoning and not is_clean_text(reasoning):
+                return True
+
+    return False
 
 def get_fantasy_picks(race: str, form_data: dict) -> dict:
     prompt = f"""
@@ -376,16 +432,22 @@ def get_fantasy_picks(race: str, form_data: dict) -> dict:
     }}
     """
     try:
-        text = _generate_text(prompt)
-        parsed = parse_json_response(text)
-        if not parsed.get("error"):
-            return parsed
+        for attempt in range(3):
+            attempt_prompt = prompt
+            if attempt > 0:
+                attempt_prompt += "\nPREVIOUS ATTEMPT WAS INVALID OR CORRUPTED. Return only valid JSON with clear English reasoning."
 
-        retry_prompt = prompt + "\nPREVIOUS ATTEMPT WAS INVALID. Return only valid JSON with clear English reasoning."
-        text2 = _generate_text(retry_prompt)
-        parsed2 = parse_json_response(text2)
-        if not parsed2.get("error"):
-            return parsed2
+            text = _generate_text(attempt_prompt)
+            parsed = parse_json_response(text)
+            if parsed.get("error"):
+                print(f"[Fantasy Attempt {attempt + 1}] Invalid JSON payload, retrying...")
+                continue
+
+            if _has_corrupted_text_in_fantasy_payload(parsed):
+                print(f"[Fantasy Attempt {attempt + 1}] Corrupted text detected, retrying...")
+                continue
+
+            return parsed
 
         return _build_fantasy_fallback(race, form_data)
     except Exception as e:
@@ -420,14 +482,17 @@ STRICT RULES — follow every one:
 """
 
     try:
-        text = _generate_text(prompt)
-        if _is_valid_text(text):
-            return text
-        # One retry with stronger instruction
-        retry_prompt = prompt + "\n\nPREVIOUS ATTEMPT WAS INVALID. Start your response ONLY with the driver's name, e.g. 'Carlos Sainz...' or 'Lewis Hamilton...'"
-        text2 = _generate_text(retry_prompt)
-        if _is_valid_text(text2):
-            return text2
+        for attempt in range(3):
+            attempt_prompt = prompt
+            if attempt > 0:
+                attempt_prompt += "\n\nPREVIOUS ATTEMPT WAS INVALID. Start your response ONLY with the driver's name, e.g. 'Carlos Sainz...' or 'Lewis Hamilton...'"
+
+            text = (_generate_text(attempt_prompt) or "").strip()
+            if _is_valid_text(text):
+                return text
+
+            print(f"[Lap Attempt {attempt + 1}] Bad text detected, retrying...")
+
         return _build_lap_fallback(telemetry, driver, race, lap)
     except Exception as e:
         print(f"[Gemini Lap Error] {e}")
@@ -447,18 +512,26 @@ def get_rivalry_analysis(stats: dict, d1: str, d2: str) -> str:
     Respond as plain text only, no JSON, no markdown.
     """
     try:
-        text = _generate_text(prompt)
-        if _is_valid_text(text) and _looks_like_two_sentences(text):
-            return text
-        # Retry once
-        retry_prompt = (
-            prompt
-            + "\nPREVIOUS ATTEMPT HAD TYPOS. Write exactly 2 clean sentences in plain English."
+        for attempt in range(3):
+            attempt_prompt = prompt
+            if attempt > 0:
+                attempt_prompt += "\nPREVIOUS ATTEMPT HAD TYPOS. Write exactly 2 clean sentences in plain English."
+
+            text = (_generate_text(attempt_prompt) or "").strip()
+            if is_clean_text(text) and _is_valid_text(text) and _looks_like_two_sentences(text):
+                return text
+
+            print(f"[Rivalry Attempt {attempt + 1}] Bad text detected, retrying...")
+
+        championships = stats.get('championships', {}) if isinstance(stats, dict) else {}
+        d1_champs = _to_int(championships.get(d1, championships.get('d1', 0)), 0)
+        d2_champs = _to_int(championships.get(d2, championships.get('d2', 0)), 0)
+        leader = d1 if d1_champs >= d2_champs else d2
+        trailer = d2 if leader == d1 else d1
+        return (
+            f"{leader} holds the statistical advantage in this head-to-head matchup based on the available data. "
+            f"{trailer} remains a formidable competitor whose performances continue to define this rivalry."
         )
-        text2 = _generate_text(retry_prompt)
-        if _is_valid_text(text2) and _looks_like_two_sentences(text2):
-            return text2
-        return _build_rivalry_fallback(stats, d1, d2)
     except Exception as e:
         print(f"[Gemini Rivalry Error] {e}")
         return _build_rivalry_fallback(stats, d1, d2)
@@ -516,13 +589,16 @@ Start with a driver name, not 'The' or 'While'.
 Plain text only. No markdown or formatting."""
 
     try:
-        text = _generate_text(prompt)
-        if _is_valid_text(text):
-            return text
+        for attempt in range(3):
+            attempt_prompt = prompt
+            if attempt > 0:
+                attempt_prompt += "\nPREVIOUS ATTEMPT HAD TYPOS. Rewrite both sentences in perfect English."
 
-        text2 = _generate_text(prompt + "\nPREVIOUS ATTEMPT HAD TYPOS. Rewrite both sentences in perfect English.")
-        if _is_valid_text(text2):
-            return text2
+            text = (_generate_text(attempt_prompt) or "").strip()
+            if _is_valid_text(text) and is_clean_text(text):
+                return text
+
+            print(f"[Career Attempt {attempt + 1}] Bad text detected, retrying...")
 
         raise ValueError("Response too short or corrupted")
     except Exception as e:
