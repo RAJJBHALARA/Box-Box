@@ -187,7 +187,7 @@ export default function LapExplainer() {
 
   return (
     <PageTransition>
-      <div className="pt-8 pb-28 px-4 max-w-5xl mx-auto w-full">
+      <div className="pt-24 md:pt-28 pb-28 px-4 max-w-5xl mx-auto w-full">
         <ScrollProgress />
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">

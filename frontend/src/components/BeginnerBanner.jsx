@@ -3,6 +3,7 @@ import { useMode } from '../context/ModeContext';
 
 export default function BeginnerBanner() {
   const { isBeginnerMode } = useMode();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <AnimatePresence>
@@ -12,21 +13,46 @@ export default function BeginnerBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -40, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          className="beginner-banner-scanline w-full flex items-center justify-center gap-2 py-2 px-4"
+          className="beginner-banner-scanline w-full py-2 px-4"
           style={{
-            background: 'linear-gradient(90deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.08) 50%, rgba(245,158,11,0.15) 100%)',
+            background:
+              'linear-gradient(90deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.08) 50%, rgba(245,158,11,0.15) 100%)',
             borderBottom: '1px solid rgba(245,158,11,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            textAlign: 'center',
           }}
         >
-          <span className="text-sm">👋</span>
           <span
-            className="font-['Space_Grotesk'] text-[11px] font-semibold tracking-wider"
-            style={{ color: '#F59E0B' }}
+            className="font-['Space_Grotesk'] font-bold"
+            style={{ lineHeight: 1, color: '#F59E0B', fontSize: 12 }}
+          >
+            //
+          </span>
+          <span
+            className="font-['Space_Grotesk'] font-semibold tracking-wider"
+            style={{
+              color: '#F59E0B',
+              fontSize: isMobile ? 10 : 11,
+              width: isMobile ? '100%' : 'auto',
+            }}
           >
             BEGINNER MODE ACTIVE
           </span>
-          <span className="text-[#F59E0B]/60 text-[11px] font-['Space_Grotesk']">
-            — We're keeping things simple for you
+          <span
+            className="font-['Space_Grotesk']"
+            style={{
+              color: 'rgba(245, 158, 11, 0.7)',
+              fontSize: isMobile ? 10 : 11,
+              maxWidth: isMobile ? '26ch' : 'none',
+            }}
+          >
+            {isMobile
+              ? "We're keeping things simple for you"
+              : "- We're keeping things simple for you"}
           </span>
         </motion.div>
       )}

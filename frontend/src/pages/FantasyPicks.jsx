@@ -281,7 +281,7 @@ export default function FantasyPicks() {
 
   return (
     <PageTransition>
-      <div className="pt-8 pb-28 px-4 max-w-6xl mx-auto w-full">
+      <div className="pt-24 md:pt-28 pb-28 px-4 max-w-6xl mx-auto w-full">
         <header className="mb-8">
           <motion.h1 
             initial={{ opacity: 0, scale: 0.95 }}

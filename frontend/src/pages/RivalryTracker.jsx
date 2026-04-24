@@ -165,14 +165,14 @@ export default function RivalryTracker() {
 
   return (
     <PageTransition>
-      <div className="pt-8 pb-28 px-4 max-w-4xl mx-auto min-h-screen w-full">
+      <div className="pt-24 md:pt-28 pb-28 px-4 max-w-4xl mx-auto min-h-screen w-full">
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             gap: 8,
             marginBottom: 28,
-            paddingTop: 32,
+            paddingTop: 0,
           }}
         >
           <h1

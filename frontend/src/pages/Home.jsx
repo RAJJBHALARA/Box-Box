@@ -165,7 +165,7 @@ export default function Home() {
   const { isBeginnerMode } = useMode();
 
   const heroWords = isBeginnerMode ? ['YOUR', 'F1'] : ['THE', 'KINETIC'];
-  const heroAccent = isBeginnerMode ? 'HEADQUARTERS 🏎️' : 'OBSERVATORY';
+  const heroAccentText = isBeginnerMode ? 'HEADQUARTERS' : 'OBSERVATORY';
 
   const [leader, setLeader] = useState({ name: 'Max Verstappen', code: 'VER', team: 'Red Bull Racing' });
   const [loading, setLoading] = useState(true);
@@ -228,7 +228,13 @@ export default function Home() {
           </div>
           <div className="relative z-10 px-8 pb-16 max-w-screen-2xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
             <div>
-              <h1 className="text-6xl md:text-8xl font-['Space_Grotesk'] font-bold text-white tracking-[-0.04em] leading-tight flex flex-col">
+              <h1
+                className="text-6xl md:text-8xl font-['Space_Grotesk'] font-bold text-white tracking-[-0.04em] leading-tight flex flex-col"
+                style={{
+                  fontSize: isMobile ? 'clamp(3.5rem, 18vw, 4.8rem)' : undefined,
+                  lineHeight: isMobile ? 0.92 : undefined,
+                }}
+              >
                 <span>
                   {heroWords.map((word, i) => (
                     <motion.span
@@ -236,7 +242,8 @@ export default function Home() {
                       initial={{ opacity: 0, y: 40 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.15, duration: dur(0.6), ease: [0.22, 1, 0.36, 1] }}
-                      className="inline-block mr-4"
+                      className="inline-block"
+                      style={{ marginRight: isMobile ? 12 : 16 }}
                     >
                       {word}
                     </motion.span>
@@ -247,15 +254,24 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: dur(0.6), ease: [0.22, 1, 0.36, 1] }}
                   className="text-[#e10600]"
+                  style={{
+                    display: 'block',
+                    fontSize: isMobile ? 'clamp(3rem, 15vw, 4.6rem)' : 'inherit',
+                    width: isMobile ? '9ch' : 'auto',
+                    maxWidth: isMobile ? '9ch' : 'none',
+                    lineHeight: isMobile ? 0.92 : 1,
+                    overflowWrap: isMobile ? 'anywhere' : 'normal',
+                  }}
                 >
-                  {heroAccent}
+                  {heroAccentText}
                 </motion.span>
               </h1>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: dur(0.8) }}
-                className="mt-6 text-[#e9bcb5] max-w-md text-lg leading-relaxed"
+                className="mt-6 text-[#e9bcb5] text-lg leading-relaxed"
+                style={{ maxWidth: isMobile ? '18rem' : '28rem' }}
               >
                 {isBeginnerMode
                   ? "New to F1? We explain everything in simple terms. No jargon, no confusion — just the thrill of racing."

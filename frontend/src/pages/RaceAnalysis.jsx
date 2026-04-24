@@ -144,7 +144,7 @@ export default function RaceAnalysis() {
 
   return (
     <PageTransition>
-      <div className="pt-8 pb-28 px-4 space-y-8 max-w-5xl mx-auto w-full">
+      <div className="pt-24 md:pt-28 pb-28 px-4 space-y-8 max-w-5xl mx-auto w-full">
         <ScrollProgress />
 
         <motion.div
