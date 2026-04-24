@@ -87,37 +87,56 @@ export default function LapExplainer() {
     return () => { active = false; };
   }, [year]);
 
+  const fetchTelemetry = async (activeRef = { current: true }) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getTelemetry(year, gp, driver, lap);
+      console.log('[Telemetry Response]', res.data);
+
+      if (!activeRef.current) return;
+
+      if (res.data?.error) {
+        console.error('[Telemetry Error]', res.data.error);
+        setTelemetry(null);
+        setError(res.data.error);
+        return;
+      }
+
+      setTelemetry(res.data || null);
+    } catch (err) {
+      console.error('[Fetch Error]', err);
+
+      if (!activeRef.current) return;
+
+      const errorMessage =
+        err.response?.data?.detail ||
+        (err.message === 'RATE_LIMIT'
+          ? 'Rate limit reached.'
+          : err.message === 'REQUEST_TIMEOUT'
+            ? 'FAILED TO LOAD TELEMETRY'
+            : err.message === 'NO_DATA'
+              ? `Telemetry data may be limited for ${gp} ${year}.`
+              : err.message || 'Connection failed');
+
+      setTelemetry(null);
+      setError(errorMessage);
+    } finally {
+      if (activeRef.current) {
+        setLoading(false);
+      }
+    }
+  };
+
   useEffect(() => {
-    let active = true;
     if (!options.races.includes(gp)) return;
-    
-    setLoading(true);
-    setError(null);
-    getTelemetry(year, gp, driver, lap)
-      .then(res => {
-        if (active) {
-          const payload = res.data || {};
-          setTelemetry(payload);
-          setError(payload.error || null);
-          setLoading(false);
-        }
-      })
-      .catch(err => {
-        if (active) {
-          if (err.message === 'RATE_LIMIT') {
-            setError('Rate limit reached.');
-          } else if (err.message === 'REQUEST_TIMEOUT' || err.message === 'SERVER_ERROR') {
-            setError('FAILED TO LOAD TELEMETRY');
-          } else if (err.message === 'NO_DATA') {
-            setError(`Telemetry data may be limited for ${gp} ${year}.`);
-          } else {
-            setError('Failed to fetch telemetry.');
-          }
-          setTelemetry(null);
-          setLoading(false);
-        }
-      });
-    return () => { active = false; };
+
+    const activeRef = { current: true };
+    fetchTelemetry(activeRef);
+
+    return () => {
+      activeRef.current = false;
+    };
   }, [year, gp, driver, lap, options.races]);
 
   const maxSpeed = useAnimatedCounter(telemetry?.max_speed || 0, 1.5, 0.5);

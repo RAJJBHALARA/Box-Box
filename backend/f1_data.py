@@ -524,110 +524,223 @@ def get_recent_form(driver_code: str, n: int = 3) -> dict:
         print(f"[FastF1 Error] get_recent_form: {e}")
         return {}
 
-def get_lap_telemetry(year: int, race: str, driver: str, lap_number: int) -> dict:
-    if not race_has_data(int(year), race):
-        return _empty_telemetry_payload(
-            f"{race} {year} has not happened yet. Please select a completed race."
+def get_lap_telemetry(year: int, race: str, driver: str, lap: int) -> dict:
+    """
+    Get lap telemetry. Tries OpenF1 for 2025+,
+    FastF1 for 2024 and below.
+    Always returns a valid dict, never crashes.
+    """
+    print(
+        f"[Telemetry] Request: year={year} race={race} driver={driver} lap={lap}"
+    )
+
+    def telemetry_error(message: str) -> dict:
+        return _empty_telemetry_payload(message)
+
+    def normalize_race_name(name: str) -> str:
+        return (
+            str(name or "")
+            .lower()
+            .replace(" grand prix", "")
+            .replace(" gp", "")
+            .strip()
         )
 
-    if should_use_openf1(year):
+    # ==========================================
+    # OPENF1 PATH (2025 and newer)
+    # ==========================================
+    if int(year) >= 2025:
         try:
-            sessions = requests.get(f"{OPENF1_BASE}/sessions?year={year}&meeting_name={race}&session_type=Race", timeout=10).json()
+            print("[Telemetry] Using OpenF1")
+            sessions = requests.get(
+                f"{OPENF1_BASE}/sessions?year={year}&session_type=Race",
+                timeout=10,
+            ).json()
+
+            print(f"[Telemetry] Sessions: {len(sessions)}")
+
             if not sessions:
-                return _empty_telemetry_payload(
-                    f"No race telemetry found for {race} {year}. Please select another race."
+                return telemetry_error(
+                    f"No {year} race sessions in OpenF1 yet. Try 2024."
                 )
-            session_key = sessions[0]['session_key']
-            
-            drivers = requests.get(f"{OPENF1_BASE}/drivers?session_key={session_key}", timeout=10).json()
-            driver_num = next((d['driver_number'] for d in drivers if d.get('name_acronym', '').upper() == driver.upper()), None)
+
+            session_key = None
+            race_clean = normalize_race_name(race)
+
+            for session_info in sessions:
+                meeting_name = normalize_race_name(session_info.get("meeting_name", ""))
+                location_name = normalize_race_name(session_info.get("location", ""))
+                country_name = normalize_race_name(session_info.get("country_name", ""))
+                if (
+                    race_clean in meeting_name
+                    or meeting_name in race_clean
+                    or race_clean in location_name
+                    or location_name in race_clean
+                    or race_clean in country_name
+                    or country_name in race_clean
+                ):
+                    session_key = session_info.get("session_key")
+                    print(f"[Telemetry] Session: {session_key}")
+                    break
+
+            if not session_key:
+                session_key = sessions[-1].get("session_key")
+                print(f"[Telemetry] Using latest session: {session_key}")
+
+            drivers = requests.get(
+                f"{OPENF1_BASE}/drivers?session_key={session_key}",
+                timeout=10,
+            ).json()
+
+            driver_num = None
+            for driver_info in drivers:
+                if driver_info.get("name_acronym", "").upper() == driver.upper():
+                    driver_num = driver_info.get("driver_number")
+                    break
+
             if not driver_num:
-                return _empty_telemetry_payload(
-                    f"Driver {driver} is not available for {race} {year}."
+                available = [d.get("name_acronym") for d in drivers]
+                print(
+                    f"[Telemetry] Driver {driver} not found, available: {available}"
                 )
-            
-            laps = requests.get(f"{OPENF1_BASE}/laps?session_key={session_key}&driver_number={driver_num}&lap_number={lap_number}", timeout=10).json()
+                return telemetry_error(
+                    f"Driver {driver} not in this race session."
+                )
+
+            laps = requests.get(
+                f"{OPENF1_BASE}/laps?session_key={session_key}"
+                f"&driver_number={driver_num}&lap_number={lap}",
+                timeout=10,
+            ).json()
+
+            print(f"[Telemetry] Laps: {len(laps)}")
+
             if not laps:
-                return _empty_telemetry_payload(
-                    f"Lap {lap_number} telemetry is unavailable for {driver} at {race} {year}."
+                return telemetry_error(
+                    f"No data for {driver} Lap {lap}. Try laps 1-20."
                 )
+
             lap_data = laps[0]
-            
-            duration = lap_data.get('lap_duration', 0)
-            if duration:
-                mins = int(duration // 60)
-                secs = duration % 60
+            duration = lap_data.get("lap_duration") or 0
+
+            if duration and float(duration) > 0:
+                total_seconds = float(duration)
+                mins = int(total_seconds // 60)
+                secs = total_seconds % 60
                 lap_time = f"{mins}:{secs:06.3f}"
             else:
                 lap_time = "--:--.---"
-            
-            car_data = requests.get(f"{OPENF1_BASE}/car_data?session_key={session_key}&driver_number={driver_num}", timeout=10).json()
-            speeds = [d.get('speed', 0) for d in car_data if d.get('speed')]
-            max_speed = max(speeds) if speeds else 0
-            avg_speed = sum(speeds) // len(speeds) if speeds else 0
-            
+
+            s1 = float(lap_data.get("duration_sector_1") or 0)
+            s2 = float(lap_data.get("duration_sector_2") or 0)
+            s3 = float(lap_data.get("duration_sector_3") or 0)
+
+            max_speed = 0
+            avg_speed = 0
+            try:
+                car = requests.get(
+                    f"{OPENF1_BASE}/car_data?session_key={session_key}"
+                    f"&driver_number={driver_num}&lap_number={lap}",
+                    timeout=8,
+                ).json()
+                if car:
+                    speeds = [
+                        entry["speed"]
+                        for entry in car
+                        if entry.get("speed", 0) > 50
+                    ]
+                    if speeds:
+                        max_speed = max(speeds)
+                        avg_speed = int(sum(speeds) / len(speeds))
+            except Exception as speed_error:
+                print(f"[Speed optional] {speed_error}")
+
             return {
                 "lap_time": lap_time,
-                "sector1": round(lap_data.get('duration_sector_1', 0) or 0, 3),
-                "sector2": round(lap_data.get('duration_sector_2', 0) or 0, 3),
-                "sector3": round(lap_data.get('duration_sector_3', 0) or 0, 3),
+                "sector1": round(s1, 3),
+                "sector2": round(s2, 3),
+                "sector3": round(s3, 3),
                 "max_speed": max_speed,
                 "avg_speed": avg_speed,
-                "sector_deltas": {"s1": 0, "s2": 0, "s3": 0}
+                "sector_deltas": {"s1": 0, "s2": 0, "s3": 0},
             }
+
         except Exception as e:
-            print(f"[OpenF1 telemetry error] {e}")
-            return _empty_telemetry_payload(
-                "Telemetry temporarily unavailable. Please try another completed race."
-            )
-    else:
+            print(f"[OpenF1 Error] {e}")
+            import traceback
+
+            traceback.print_exc()
+            return telemetry_error(f"OpenF1: {str(e)}")
+
+    # ==========================================
+    # FASTF1 PATH (2024 and older)
+    # ==========================================
+    try:
+        print(f"[Telemetry] Using FastF1 for {year}")
+
+        fastf1.Cache.enable_cache(CACHE_DIR)
+
+        mapped_race = RACE_NAME_MAP.get(race, race)
+        session = fastf1.get_session(int(year), mapped_race, "R")
+        session.load(
+            telemetry=True,
+            weather=False,
+            messages=False,
+        )
+
+        driver_laps = session.laps.pick_driver(driver.upper())
+
+        if driver_laps.empty:
+            return telemetry_error(f"No laps for {driver}")
+
         try:
-            race = RACE_NAME_MAP.get(race, race)
-            session = fastf1.get_session(year, race, 'R')
-            session.load(telemetry=True, weather=False, messages=False)
-            
-            laps = session.laps.pick_driver(driver)
-            lap = laps[laps['LapNumber'] == lap_number]
-            
-            if lap.empty:
-                return _empty_telemetry_payload(
-                    f"Lap {lap_number} telemetry is unavailable for {driver} at {race} {year}."
-                )
-                
-            lap_data = lap.iloc[0]
-            telemetry = lap.get_telemetry()
-            
-            sec1 = lap_data.get('Sector1Time')
-            sec2 = lap_data.get('Sector2Time')
-            sec3 = lap_data.get('Sector3Time')
-            laptime = lap_data.get('LapTime')
-            
-            def to_s(td): return round(td.total_seconds(), 3) if pd.notna(td) else None
-            
-            lap_time_str = "Unknown"
-            if pd.notna(laptime):
-                total_sec = laptime.total_seconds()
-                mins = int(total_sec // 60)
-                secs = total_sec % 60
-                lap_time_str = f"{mins}:{secs:06.3f}"
-                
-            max_speed = int(telemetry['Speed'].max()) if not telemetry.empty else 0
-            avg_speed = int(telemetry['Speed'].mean()) if not telemetry.empty else 0
-            
-            return {
-                "lap_time": lap_time_str,
-                "sector1": to_s(sec1),
-                "sector2": to_s(sec2),
-                "sector3": to_s(sec3),
-                "max_speed": max_speed,
-                "avg_speed": avg_speed,
-                "sector_deltas": {"s1": -0.05, "s2": 0.12, "s3": -0.02}
-            }
-        except Exception as e:
-            print(f"[FastF1 Error] get_lap_telemetry: {e}")
-            return _empty_telemetry_payload(
-                "Telemetry temporarily unavailable. Please try another completed race."
-            )
+            target_lap = driver_laps[driver_laps["LapNumber"] == int(lap)].iloc[0]
+        except IndexError:
+            target_lap = driver_laps.pick_fastest()
+            print(f"[FastF1] Lap {lap} not found, using fastest")
+
+        telemetry = target_lap.get_telemetry()
+
+        lap_time_raw = target_lap.get("LapTime")
+        if pd.notna(lap_time_raw):
+            lap_time = str(lap_time_raw).split(".")[0].replace("0 days 00:", "")
+        else:
+            lap_time = "--:--.---"
+
+        s1 = target_lap.get("Sector1Time", pd.NaT)
+        s2 = target_lap.get("Sector2Time", pd.NaT)
+        s3 = target_lap.get("Sector3Time", pd.NaT)
+
+        def to_seconds(value):
+            try:
+                return round(value.total_seconds(), 3)
+            except Exception:
+                return 0
+
+        max_speed = 0
+        avg_speed = 0
+        if not telemetry.empty and "Speed" in telemetry:
+            speeds = telemetry["Speed"].dropna()
+            if len(speeds) > 0:
+                max_speed = int(speeds.max())
+                avg_speed = int(speeds.mean())
+
+        return {
+            "lap_time": lap_time,
+            "sector1": to_seconds(s1),
+            "sector2": to_seconds(s2),
+            "sector3": to_seconds(s3),
+            "max_speed": max_speed,
+            "avg_speed": avg_speed,
+            "sector_deltas": {"s1": 0, "s2": 0, "s3": 0},
+        }
+
+    except Exception as e:
+        print(f"[FastF1 Error] {e}")
+        import traceback
+
+        traceback.print_exc()
+        return telemetry_error(f"FastF1: {str(e)}")
 
 
 # ── Career Stats (Jolpica API) ────────────────────────────────────────────────
@@ -868,4 +981,3 @@ def get_career_stats(driver_id: str) -> dict:
     except Exception as e:
         print(f"[Career Error] {driver_id}: {e}")
         return {}
-

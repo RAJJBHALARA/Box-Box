@@ -85,6 +85,45 @@ async def health_check(request: Request):
     """Public health endpoint, no API key needed for basic check."""
     return {"status": "ok", "ai": "gemini-1.5-pro"}
 
+@app.get("/api/debug-telemetry")
+async def debug_telemetry():
+    """Test endpoint to diagnose telemetry backend issues."""
+    results = {}
+
+    try:
+        import fastf1  # noqa: F401
+        results["fastf1"] = "ok"
+    except Exception as e:
+        results["fastf1"] = str(e)
+
+    try:
+        import requests
+        response = requests.get(
+            "https://api.openf1.org/v1/sessions?year=2026&session_type=Race",
+            timeout=5,
+        )
+        data = response.json()
+        results["openf1_2026"] = {
+            "status": "ok",
+            "count": len(data),
+            "latest": data[-1].get("meeting_name") if data else None,
+        }
+    except Exception as e:
+        results["openf1_2026"] = str(e)
+
+    try:
+        import google.generativeai as genai  # noqa: F401
+        results["gemini"] = "imported ok"
+    except Exception as e:
+        results["gemini"] = str(e)
+
+    results["env"] = {
+        "GEMINI_API_KEY": "set" if os.getenv("GEMINI_API_KEY") else "MISSING",
+        "API_SECRET_KEY": "set" if os.getenv("API_SECRET_KEY") else "MISSING",
+    }
+
+    return results
+
 @app.get("/api/races", dependencies=[Depends(verify_api_key)])
 @limiter.limit("20/minute")
 async def fetch_races(request: Request, year: int = 2024):
@@ -143,11 +182,21 @@ async def fetch_rivalry_api(request: Request, year: int, driver1: str, driver2: 
 @app.get("/api/telemetry", dependencies=[Depends(verify_api_key)])
 @limiter.limit("10/minute")
 async def fetch_telemetry_api(request: Request, year: int, race: str, driver: str, lap: int):
-    telemetry = get_lap_telemetry(year, race, driver, lap)
+    print(f"[Telemetry API] year={year} race={race} driver={driver} lap={lap}")
+    telemetry = await asyncio.to_thread(get_lap_telemetry, year, race, driver, lap)
     if not telemetry:
         raise HTTPException(status_code=404, detail="No telemetry available for this lap.")
-        
-    ai_analysis = explain_lap(telemetry, driver, race, lap)
+
+    if telemetry.get("error"):
+        telemetry["aiAnalysis"] = ""
+        return telemetry
+
+    try:
+        ai_analysis = await asyncio.to_thread(explain_lap, telemetry, driver, race, lap)
+    except Exception as e:
+        print(f"[Telemetry AI Error] {e}")
+        ai_analysis = ""
+
     telemetry["aiAnalysis"] = ai_analysis
     return telemetry
 

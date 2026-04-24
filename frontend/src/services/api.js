@@ -34,12 +34,18 @@ const stopSlowRequestNotice = () => {
 const toApiError = (err) => {
   const status = err.response?.status;
   const isTimeout = err.code === 'ECONNABORTED' || /timeout/i.test(err.message || '');
+  let message = err.response?.data?.detail || "SERVER_ERROR"
 
-  if (isTimeout) return new Error("REQUEST_TIMEOUT")
-  if (status === 429) return new Error("RATE_LIMIT")
-  if (status === 403) return new Error("AUTH_ERROR")
-  if (status === 404) return new Error("NO_DATA")
-  return new Error(err.response?.data?.detail || "SERVER_ERROR")
+  if (isTimeout) message = "REQUEST_TIMEOUT"
+  else if (status === 429) message = "RATE_LIMIT"
+  else if (status === 403) message = "AUTH_ERROR"
+  else if (status === 404) message = "NO_DATA"
+
+  const apiError = new Error(message)
+  apiError.response = err.response
+  apiError.code = err.code
+  apiError.originalError = err
+  return apiError
 }
 
 const attachInterceptors = (client) => {
