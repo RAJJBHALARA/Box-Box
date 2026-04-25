@@ -23,7 +23,7 @@ AI analysis, fantasy picks, and driver career comparisons
 
 ## 🤔 Why I Built This
 
-I'm an F1 fan and CS student. Every race weekend I found myself 
+I'm an F1 fan and CE student. Every race weekend I found myself 
 switching between 5 different tabs — the official F1 app for 
 standings, a Reddit thread for analysis, a spreadsheet for 
 fantasy picks, and YouTube for race breakdowns.
@@ -43,7 +43,7 @@ in one premium dashboard, completely free and open source.
 ## ✨ What BoxBox Does
 
 ### 🏁 Race Analysis
-Select any Grand Prix from 2018–2025 and instantly see:
+Select any Grand Prix from 2018–2026 and instantly see:
 - **Lap time evolution charts** — watch how pace changed 
   through the race, pit stop effects visible as spikes
 - **Tire strategy timelines** — color-coded compound bars 
